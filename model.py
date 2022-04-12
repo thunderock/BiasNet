@@ -65,6 +65,7 @@ class BiasNet(BaseFeaturesExtractor):
         x = self.norm2(linear_out)
         return x
 
+
 class CustomCNN(BaseFeaturesExtractor):
 
 
