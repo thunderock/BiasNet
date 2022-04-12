@@ -7,7 +7,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 import math
-
+import pytorch_lightning as pl
 
 class MultiheadAttention(nn.Module):
 
@@ -18,6 +18,7 @@ class MultiheadAttention(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
+        print(input_dim, 3 * embed_dim)
         self.qkv_proj = nn.Linear(input_dim, 3 * embed_dim)
         self.out_proj = nn.Linear(embed_dim, embed_dim)
         self.dropout = nn.Dropout(dropout)
@@ -42,7 +43,9 @@ class MultiheadAttention(nn.Module):
 
     def forward(self, x, mask=None, return_attention=False):
 
-        batch_size, seq_length, embed_dim = x.size()
+        print("x.shape: ", x.shape )
+        batch_size, y, seq_length, embed_dim = x.size()
+
 
         qkv = self.qkv_proj(x)
 
@@ -61,3 +64,16 @@ class MultiheadAttention(nn.Module):
             return o, attention
         else:
             return o
+
+#
+# seq_len, d_k = 3, 2
+# pl.seed_everything(42)
+# q = torch.randn(seq_len, d_k)
+# k = torch.randn(seq_len, d_k)
+# v = torch.randn(seq_len, d_k)
+# values, attention = MultiheadAttention.scaled_dot_product(q, k, v)
+# print("Q\n", q)
+# print("K\n", k)
+# print("V\n", v)
+# print("Values\n", values)
+# print("Attention\n", attention)

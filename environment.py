@@ -11,14 +11,17 @@ import cv2
 
 
 class StreetFighterEnv(Env):
-    def __init__(self, record_file=None):
+    def __init__(self, record_file=None, state=None):
+
         super().__init__()
-        self.observation_space = Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)
+        self.image_size = 128
+        state = "Champion.Level1.RyuVsGuile" if state is None else state
+        self.observation_space = Box(low=0, high=255, shape=(self.image_size, self.image_size, 1), dtype=np.uint8)
         self.action_space = MultiBinary(12)
         if record_file:
-            self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED, record=record_file)
+            self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED, record=record_file, state=state)
         else:
-            self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED)
+            self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED, state=state)
 
     def get_reward(self, info, reward=None): return info['score'] - self.score
 
@@ -46,5 +49,5 @@ class StreetFighterEnv(Env):
 
     def preprocess(self, obs):
         gray = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
-        resized = cv2.resize(gray, (84, 84), interpolation=cv2.INTER_CUBIC)
-        return np.reshape(resized, (84, 84, 1))
+        resized = cv2.resize(gray, (self.image_size, self.image_size), interpolation=cv2.INTER_CUBIC)
+        return np.reshape(resized, (self.image_size, self.image_size, 1))
