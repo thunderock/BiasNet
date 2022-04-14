@@ -15,55 +15,7 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from environment import StreetFighterEnv
 import os
 
-class BiasNet(BaseFeaturesExtractor):
 
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 256, num_heads: int = 8):
-        super().__init__(observation_space, features_dim)
-        input_size = observation_space.shape[0]
-        # print(input_size)
-        c, h, w = (4, 84, 84)
-
-        if h != w:
-            raise ValueError("Input shape must be square")
-        if h != 84:
-            raise ValueError("Input shape must be 84x84")
-
-        self.net = nn.Sequential(
-            nn.Conv2d(c, 32, kernel_size=8, stride=4, padding=0),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
-            nn.ReLU(),
-            nn.Flatten()
-            # relational module
-            # MultiheadAttention(64, 64, num_heads),
-
-
-        )
-        with torch.no_grad():
-            n_flatten = self.net(
-                torch.as_tensor(observation_space.sample()[None]).float()
-            ).shape[1]
-        self.linear = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.ReLU(),
-            nn.Linear(n_flatten, features_dim),
-            nn.ReLU()
-        )
-        self.norm1 = nn.LayerNorm(5184)
-        self.norm2 = nn.LayerNorm(128)
-        self.dropout = nn.Dropout(0.2)
-
-    def forward(self, x):
-        # print(x.shape)
-        x = self.net(x)
-        x = x + self.dropout(x)
-        x = self.norm1(x)
-
-        linear_out = self.linear(x)
-        # print(x.shape, linear_out.shape)
-        # x = x + self.dropout(linear_out)
-        x = self.norm2(linear_out)
-        return x
 
 
 class CustomCNN(BaseFeaturesExtractor):
@@ -74,6 +26,7 @@ class CustomCNN(BaseFeaturesExtractor):
         # We assume CxHxW images (channels first)
         # Re-ordering will be done by pre-preprocessing or wrapper
         n_input_channels = observation_space.shape[0]
+        print(n_input_channels)
         self.cnn = nn.Sequential(
         nn.Conv2d(n_input_channels, 32, kernel_size=8, stride=4, padding=0),
         nn.ReLU(),
