@@ -5,11 +5,11 @@
 from typing import Callable, Dict, List, Optional, Tuple, Type, Union
 
 import gym
-import torch as th
+import torch
 from torch import nn
 
 from stable_baselines3 import PPO, A2C
-from stable_baselines3.common.policies import ActorCriticPolicy
+from stable_baselines3.common.policies import ActorCriticPolicy, ActorCriticCnnPolicy
 from environment import StreetFighterEnv
 import os
 import shutil
@@ -26,7 +26,7 @@ class CustomNetwork(nn.Module):
 
     def __init__(
         self,
-        feature_dim: int,
+        observation_space: gym.spaces.Box,
         last_layer_dim_pi: int = 64,
         last_layer_dim_vf: int = 64,
     ):
@@ -37,30 +37,79 @@ class CustomNetwork(nn.Module):
         self.latent_dim_pi = last_layer_dim_pi
         self.latent_dim_vf = last_layer_dim_vf
 
+        feature_dim = observation_space.shape[0]
+
+        # there is already a cnn in the base class, NatureCNN
+        self.cnn = nn.Sequential(
+            nn.Conv2d(feature_dim, 32, kernel_size=8, stride=4, padding=0),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=0),
+            nn.ReLU(),
+            nn.Flatten(),
+        )
+        with torch.no_grad():
+            n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
+
+        # self.linear = nn.Sequential(nn.Linear(n_flatten, n_flatten), nn.ReLU())
+
         # Policy network
         self.policy_net = nn.Sequential(
-            nn.Linear(feature_dim, last_layer_dim_pi), nn.ReLU()
+            nn.Linear(512, last_layer_dim_pi), nn.ReLU()
         )
         # Value network
         self.value_net = nn.Sequential(
-            nn.Linear(feature_dim, last_layer_dim_vf), nn.ReLU()
+            nn.Linear(512, last_layer_dim_vf), nn.ReLU()
         )
 
-    def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
-        """
-        :return: (th.Tensor, th.Tensor) latent_policy, latent_value of the specified network.
-            If all layers are shared, then ``latent_policy == latent_value``
-        """
-        return self.policy_net(features), self.value_net(features)
-
-    def forward_actor(self, features: th.Tensor) -> th.Tensor:
-        return self.policy_net(features)
-
-    def forward_critic(self, features: th.Tensor) -> th.Tensor:
-        return self.value_net(features)
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.policy_net(x), self.value_net(x)
 
 
-class CustomActorCriticPolicy(ActorCriticPolicy):
+class CustomNetworkWithAttention(nn.Module):
+
+    def __init__(
+        self,
+        observation_space: gym.spaces.Box,
+        last_layer_dim_pi: int = 64,
+        last_layer_dim_vf: int = 64,
+    ):
+        super(CustomNetworkWithAttention, self).__init__()
+
+        # IMPORTANT:
+        # Save output dimensions, used to create the distributions
+        self.latent_dim_pi = last_layer_dim_pi
+        self.latent_dim_vf = last_layer_dim_vf
+
+        feature_dim = observation_space.shape[0]
+
+        # there is already a cnn in the base class, NatureCNN
+        self.cnn = nn.Sequential(
+            nn.Conv2d(feature_dim, 32, kernel_size=8, stride=4, padding=0),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=0),
+            nn.ReLU(),
+            nn.Flatten(),
+        )
+        with torch.no_grad():
+            n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
+
+        # self.linear = nn.Sequential(nn.Linear(n_flatten, n_flatten), nn.ReLU())
+
+        # Policy network
+        self.policy_net = nn.Sequential(
+            nn.Linear(512, last_layer_dim_pi), nn.ReLU()
+        )
+        # Value network
+        self.value_net = nn.Sequential(
+            nn.Linear(512, last_layer_dim_vf), nn.ReLU()
+        )
+
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.policy_net(x), self.value_net(x)
+
+
+
+class CustomActorCriticPolicy(ActorCriticCnnPolicy):
     def __init__(
         self,
         observation_space: gym.spaces.Space,
@@ -85,6 +134,7 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
         # Disable orthogonal initialization
         self.ortho_init = False
 
+    # def _build(self, lr_schedule: Schedule) -> None:
     def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = CustomNetwork(self.features_dim)
+        self.mlp_extractor = CustomNetwork(self.observation_space)
 

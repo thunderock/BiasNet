@@ -14,6 +14,6 @@ policy = CustomActorCriticPolicy
 env = StreetFighterEnv()
 env = Monitor(env, "\tmp\monitor", allow_early_resets=True)
 env = DummyVecEnv([lambda: env])
-env = VecFrameStack(env, 1, channels_order='last')
+
 model = A2C(policy, env, verbose=1)
 model.learn(5000)
