@@ -88,10 +88,3 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
     def _build_mlp_extractor(self) -> None:
         self.mlp_extractor = CustomNetwork(self.features_dim)
 
-
-env = StreetFighterEnv()
-env = Monitor(env, "\tmp\monitor", allow_early_resets=True)
-env = DummyVecEnv([lambda: env])
-env = VecFrameStack(env, 1, channels_order='last')
-model = A2C(CustomActorCriticPolicy, env, verbose=1)
-model.learn(5000)
