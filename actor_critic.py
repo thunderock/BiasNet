@@ -23,14 +23,6 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
 from stable_baselines3.common.callbacks import BaseCallback
 
 class CustomNetwork(nn.Module):
-    """
-    Custom network for policy and value function.
-    It receives as input the features extracted by the feature extractor.
-
-    :param feature_dim: dimension of the features extracted with the features_extractor (e.g. features from a CNN)
-    :param last_layer_dim_pi: (int) number of units for the last layer of the policy network
-    :param last_layer_dim_vf: (int) number of units for the last layer of the value network
-    """
 
     def __init__(
         self,

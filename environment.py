@@ -11,13 +11,14 @@ import cv2
 
 
 class StreetFighterEnv(Env):
-    def __init__(self, record_file=None, state=None):
+    def __init__(self, record_file=None, state=None, capture_movement=False):
 
         super().__init__()
         self.image_size = 84
         state = "Champion.Level1.RyuVsGuile" if state is None else state
         self.observation_space = Box(low=0, high=255, shape=(self.image_size, self.image_size, 1), dtype=np.uint8)
         self.action_space = MultiBinary(12)
+        self.movement_capture = capture_movement
         if record_file:
             self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED, record=record_file, state=state)
         else:
@@ -28,11 +29,14 @@ class StreetFighterEnv(Env):
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
         obs = self.preprocess(obs)
-        frame_delta = obs - self.previous_frame
+
+        if self.movement_capture:
+            # if we want images only which capture movement
+            obs = obs - self.previous_frame
         self.previous_frame = obs
         reward = self.get_reward(info)
         self.score = info['score']
-        return frame_delta, reward, done, info
+        return obs, reward, done, info
 
     def render(self, *args, **kwargs):
         self.env.render(*args, **kwargs)
