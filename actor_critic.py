@@ -48,10 +48,6 @@ class CustomNetwork(nn.Module):
             nn.ReLU(),
             nn.Flatten(),
         )
-        with torch.no_grad():
-            n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
-
-        # self.linear = nn.Sequential(nn.Linear(n_flatten, n_flatten), nn.ReLU())
 
         # Policy network
         self.policy_net = nn.Sequential(
@@ -94,7 +90,6 @@ class CustomActorCriticPolicy(ActorCriticCnnPolicy):
         self.ortho_init = False
         self.features_extractor_class = feature_extractor_class
 
-    # def _build(self, lr_schedule: Schedule) -> None:
     def _build_mlp_extractor(self) -> None:
         self.mlp_extractor = CustomNetwork(self.observation_space)
 

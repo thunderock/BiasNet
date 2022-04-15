@@ -8,13 +8,14 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
 from actor_critic import CustomActorCriticPolicy
-from feature_extractors import CustomFeatureExtractor
+from feature_extractors import CustomFeatureExtractorWithAttention, CustomFeatureExtractor
 from stable_baselines3.common.torch_layers import NatureCNN, BaseFeaturesExtractor
 import gym
 import numpy as np
 
+# to include the custom feature extractor
 policy_kwargs = dict(
-    features_extractor_class=CustomFeatureExtractor,
+    features_extractor_class=CustomFeatureExtractorWithAttention,
     # features_extractor_kwargs=dict(observation_space=gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)),
 )
 
