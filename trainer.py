@@ -28,28 +28,16 @@ def get_trained_model(env, policy_network, feature_extractor_kwargs, model, time
     model.learn(timesteps)
     return model
 
-# # # to include the custom feature extractor
+# # # # to include the custom feature extractor
 # policy_kwargs = dict(
-#     features_extractor_class=CNNExtractorWithAttention,
-#     # features_extractor_kwargs=dict(observation_space=gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)),
+#     features_extractor_class=CNNExtractor,
+#     features_extractor_kwargs=dict(frame_size=1,)
 # )
-
+#
 # model_params = {'gamma': 0.8858167808442736, 'learning_rate': 2.629936406785739e-05, 'gae_lambda': 0.8408608675098352}
 # policy = A2CCNNPolicy
 # env = StreetFighterEnv()
 # model0 = get_trained_model(env=env, policy_network=policy,
-#                            feature_extractor_kwargs=policy_kwargs, model=A2C, timesteps=10,
+#                            feature_extractor_kwargs=policy_kwargs, model=A2C, timesteps=2,
 #                            model_params=model_params, frame_size=1, monitor_log_file=None, log_dir=None)
 
-# model1 = get_trained_model(env=env, policy_network=policy,
-#                            feature_extractor_kwargs=policy_kwargs, model=A2C, timesteps=10,
-#                            model_params=model_params, frame_size=4, monitor_log_file=None, log_dir=None)
-
-
-# policy_kwargs = dict(
-#     features_extractor_class=CNNExtractor,
-# )
-#
-# model2 = get_trained_model(env, policy, policy_kwargs, frame_size=1, monitor_log_file=None, log_dir=None, model=A2C, timesteps=10)
-#
-# model3= get_trained_model(env, policy, policy_kwargs, frame_size=4, monitor_log_file=None, log_dir=None, model=A2C, timesteps=10)

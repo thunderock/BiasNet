@@ -32,7 +32,7 @@ class A2CCNNPolicy(ActorCriticCnnPolicy):
         )
         # Disable orthogonal initialization
         self.ortho_init = False
-        self.features_extractor_class = features_extractor_class(self.observation_space, **features_extractor_kwargs)
+        self.features_extractor = features_extractor_class(self.observation_space, **features_extractor_kwargs)
 
 
 

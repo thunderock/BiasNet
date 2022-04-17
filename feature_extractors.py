@@ -38,7 +38,7 @@ class CNNExtractor(BaseFeaturesExtractor):
     ):
         super(CNNExtractor, self).__init__(observation_space=observation_space, features_dim=features_dim)
         self.cnn = nn.Sequential(
-            nn.Conv2d(frame_size, 32, (8, 8), stride=(4, 4), padding=0),
+            nn.Conv2d(frame_size, 32, (8,8), stride=(4,4), padding=0),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
@@ -53,7 +53,8 @@ class CNNExtractor(BaseFeaturesExtractor):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.cnn(x)
-        return self.linear(x)
+        x = self.linear(x)
+        return x
 
 
 class CNNExtractorWithAttention(BaseFeaturesExtractor):
@@ -65,13 +66,13 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         frame_size: int = 1
     ):
         super(CNNExtractorWithAttention, self).__init__(observation_space=observation_space, features_dim=features_dim)
-
+        # there is already a cnn in the base class, NatureCNN
         self.cnn = nn.Sequential(
             nn.Conv2d(frame_size, 32, (8,8), stride=(4, 4), padding=0),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(64, 8, kernel_size=(1,1), stride=(1, 1)),
             nn.ReLU(),
             # nn.Flatten(start_dim=1, end_dim=-1)
         )
@@ -82,6 +83,8 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         self.self_attention = nn.MultiheadAttention(features_out, num_heads=4)
         self.max_pool = nn.Sequential(nn.MaxPool2d(kernel_size=(4, 4)), nn.Flatten(), nn.ReLU())
         self.linear = nn.Sequential(nn.Linear(36, 64), nn.ReLU(), nn.Linear(64, features_dim), nn.ReLU())
+        # self.conv = nn.Conv1d(4, 1, kernel_size=(1, 1), stride=(1, 1))
+        self.frame_size = frame_size
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch_size, channels, *_ = x.shape
@@ -90,8 +93,10 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         y, _ = self.self_attention(y, y, y)
         y = self.max_pool(y)
         y = y.reshape(batch_size, -1)
-        x = self.linear(y)
-        return x
 
+        # y = self.conv(y)
+        x = self.linear(y)
+        print(x.shape)
+        return x
 
 

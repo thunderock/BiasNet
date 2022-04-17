@@ -76,20 +76,20 @@ N_TRIALS = 2
 # FRAME_SIZE = 4
 
 ########################################################################################################################
-for extractor in [CNNExtractor, CNNExtractorWithAttention]:
-    for FRAME_SIZE in [1]:
-        model = A2C
-        env = StreetFighterEnv()
-        policy_network = A2CCNNPolicy
-
-        policy_kwargs = dict(
-            features_extractor_class=extractor,
-            features_extractor_kwargs=dict(frame_size=FRAME_SIZE, features_dim=512,),
-        )
-        tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs,
-                      frame_size=FRAME_SIZE, timesteps=TIMESTEPS)
-
-        study = tuner.tune_study(n_trials=N_TRIALS, )
+# for extractor in [ CNNExtractorWithAttention]:
+#     for FRAME_SIZE in [1]:
+#         model = A2C
+#         env = StreetFighterEnv()
+#         policy_network = A2CCNNPolicy
+#
+#         policy_kwargs = dict(
+#             features_extractor_class=extractor,
+#             features_extractor_kwargs=dict(frame_size=FRAME_SIZE, features_dim=512,),
+#         )
+#         tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs,
+#                       frame_size=FRAME_SIZE, timesteps=TIMESTEPS)
+#
+#         study = tuner.tune_study(n_trials=N_TRIALS, )
 # study.best_trial.number, study.best_params
 
 
