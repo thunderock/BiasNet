@@ -7,14 +7,12 @@ from constants import *
 from utils import evaluate_model_policy
 from trainer import get_trained_model
 import optuna
-from environment import StreetFighterEnv
-from stable_baselines3 import PPO, A2C
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
-from actor_critic import A2CCNNPolicy
-from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 import os
+from botorch.settings import suppress_botorch_warnings, validate_input_scaling
+import shutil
 
+suppress_botorch_warnings(False)
+validate_input_scaling(True)
 
 class Tuner(object):
     def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=100000, save_dir='/tmp'):
@@ -25,6 +23,10 @@ class Tuner(object):
         self.frame_size = frame_size
         self.timesteps = timesteps
         self.save_dir = save_dir
+        if os.path.exists(save_dir):
+            shutil.rmtree(save_dir, ignore_errors=True)
+        if not os.path.exists(self.save_dir):
+            os.mkdir(self.save_dir)
 
     @staticmethod
     def _get_trial_values(trial):
@@ -39,13 +41,15 @@ class Tuner(object):
         return os.path.join(self.save_dir, 'trial_{}_best_model'.format(trial_number))
 
 
+
     def __tune_model(self, trial_params):
         model_params = self._get_trial_values(trial_params)
+
         model = get_trained_model(
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
             model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params)
         reward = evaluate_model_policy(self.env, model)
-        print("Total Reward: {} for params: {}".format(reward, model_params))
+        # print("Total Reward: {} for params: {}".format(reward, model_params))
         model.save(self.get_model_path(trial_params.number))
         return reward
 
@@ -56,11 +60,10 @@ class Tuner(object):
     
     
     def tune_study(self, n_trials=1):
-        study = optuna.create_study(direction='maximize')
-        study.optimize(lambda trial: self.__tune_model(trial), n_trials=n_trials, n_jobs=1)
+        sampler = optuna.integration.BoTorchSampler()
+        study = optuna.create_study(direction='maximize', sampler=sampler)
+        study.optimize(lambda trial: self.__tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True)
         self.env.close()
-        best_iteration = study.best_trial.number
-        best_model_path = self.get_model_path(best_iteration)
         return study
 
 
