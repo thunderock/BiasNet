@@ -14,10 +14,11 @@ from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack
 from actor_critic import A2CCNNPolicy
 from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 from constants import *
+import os
 
 
 class Tuner(object):
-    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=100000):
+    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=100000, save_dir='/tmp'):
         self.model = model
         self.env = env
         self.policy_network = policy_network
@@ -25,6 +26,7 @@ class Tuner(object):
         self.frame_size = frame_size
         self.timesteps = timesteps
         self.study = optuna.create_study(direction='maximize')
+        self.save_dir = save_dir
 
     @staticmethod
     def _get_trial_values(trial):
@@ -34,21 +36,38 @@ class Tuner(object):
             'gae_lambda': trial.suggest_uniform('gae_lambda', 0.8, 0.99)
         }
 
-    def tune(self, n_trials=1):
-        self.study.optimize(lambda trial: evaluate_model_policy(self.env, get_trained_model(
+
+    def get_model_path(self, trial_number):
+        return os.path.join(self.save_dir, 'trial_{}_best_model'.format(trial_number))
+
+
+    def __tune_model(self, trial_params):
+        model_params = self._get_trial_values(trial_params)
+        model = get_trained_model(
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
-            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=self._get_trial_values(trial))), n_trials=n_trials, n_jobs=1)
+            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params)
+        reward = evaluate_model_policy(self.env, model)
+        model.save(self.get_model_path(trial_params.number))
+        return reward
+
+    def tune(self, n_trials=1):
+        self.study.optimize(lambda trial: self.__tune_model(trial), n_trials=n_trials, n_jobs=1)
+        self.env.close()
+        best_iteration = self.study.best_trial.number
+        best_model_path = self.get_model_path(best_iteration)
+        return self.model.load(best_model_path)
+
 
 env = StreetFighterEnv()
 model = A2C
 policy_network = A2CCNNPolicy
 frame_size = 1
-timesteps = 10
+timesteps = 1000000
 policy_kwargs = dict(
     features_extractor_class=CNNExtractorWithAttention,
     # features_extractor_kwargs=dict(observation_space=gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)),
 )
 
-tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size)
+tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size, timesteps=timesteps)
 
-tuner.tune(n_trials=2)
+best_model = tuner.tune(n_trials=2)
