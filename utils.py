@@ -19,12 +19,3 @@ def evaluate_model_policy(env, model, n_eval_episodes=5):
     score = evaluate_policy(model, env, n_eval_episodes=n_eval_episodes)[0]
     return score
 
-
-def plot_studies(study):
-    # only to be used with jupyter notebook
-    optuna.visualization.plot_parallel_coordinate(study)
-    optuna.visualization.plot_contour(study)
-    optuna.visualization.plot_slice(study)
-    optuna.visualization.plot_param_importances(study)
-    optuna.visualization.plot_edf(study)
-    optuna.visualization.plot_optimization_history(study)

@@ -2,13 +2,13 @@
 # @Author:      Ashutosh Tiwari
 # @Email:       checkashu@gmail.com
 # @Time:        4/9/22 1:21 AM
-
+import os
 import numpy as np
 import retro
 from gym import Env
 from gym.spaces import MultiBinary, Box
 import cv2
-
+import shutil
 
 class StreetFighterEnv(Env):
     def __init__(self, record_file=None, state=None, capture_movement=False, image_size=84):
@@ -21,6 +21,8 @@ class StreetFighterEnv(Env):
         # to capture only the movement in last frame
         self.movement_capture = capture_movement
         if record_file:
+            shutil.rmtree(record_file, ignore_errors=True)
+            os.mkdir(record_file)
             self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis',
                                   use_restricted_actions=retro.Actions.FILTERED, record=record_file, state=state)
         else:

@@ -11,7 +11,7 @@ from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 from constants import *
 
 
-def _get_model(model_type, env, policy_network, feature_extractor_kwargs, log_dir=None, model_params=None, seed=SEED, verbose=0, n_steps=254):
+def _get_model(model_type, env, policy_network, feature_extractor_kwargs, log_dir=None, model_params=None, seed=SEED, verbose=0, n_steps=128):
     return model_type(policy_network, env, policy_kwargs=feature_extractor_kwargs,
                       seed=seed, verbose=verbose, tensorboard_log=log_dir, n_steps=n_steps, **model_params)
 
