@@ -18,7 +18,7 @@ def _get_model(model_type, env, policy_network, feature_extractor_kwargs, log_di
 
 def get_trained_model(env, policy_network, feature_extractor_kwargs, model, timesteps,
                       frame_size, model_params, monitor_log_file=None, log_dir=None, seed=SEED):
-    print(model_params)
+    # print(model_params)
     env = Monitor(env, monitor_log_file, allow_early_resets=True)
     env = DummyVecEnv([lambda: env])
     # only using black and white images

@@ -47,7 +47,7 @@ class Tuner(object):
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
             model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params)
         reward = evaluate_model_policy(self.env, model)
-        print("Reward: {} for params: {}".format(reward, model_params))
+        print("Total Reward: {} for params: {}".format(reward, model_params))
         model.save(self.get_model_path(trial_params.number))
         return reward
 
@@ -56,19 +56,18 @@ class Tuner(object):
         self.env.close()
         best_iteration = self.study.best_trial.number
         best_model_path = self.get_model_path(best_iteration)
-        return self.model.load(best_model_path)
+        return self.model.load(best_model_path), self.study.best_params
 
 
-env = StreetFighterEnv()
-model = A2C
-policy_network = A2CCNNPolicy
-frame_size = 1
-timesteps = 1000000
-policy_kwargs = dict(
-    features_extractor_class=CNNExtractorWithAttention,
-    # features_extractor_kwargs=dict(observation_space=gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)),
-)
-
-tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size, timesteps=timesteps, save_dir='models')
+# env = StreetFighterEnv()
+# model = A2C
+# policy_network = A2CCNNPolicy
+# frame_size = 1
+# timesteps = 1000000
+# policy_kwargs = dict(
+#     features_extractor_class=CNNExtractorWithAttention
+# )
+#
+# tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size, timesteps=timesteps, save_dir='models')
 
 best_model = tuner.tune(n_trials=20, )
