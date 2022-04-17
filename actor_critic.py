@@ -32,7 +32,6 @@ class A2CCNNPolicy(ActorCriticCnnPolicy):
         )
         # Disable orthogonal initialization
         self.ortho_init = False
-        # feature_extractor_class = kwargs.get("features_extractor_class", NatureCNN)
         self.features_extractor_class = features_extractor_class(self.observation_space, **features_extractor_kwargs)
 
 

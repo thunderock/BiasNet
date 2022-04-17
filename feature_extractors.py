@@ -38,11 +38,13 @@ class CNNExtractor(BaseFeaturesExtractor):
     ):
         super(CNNExtractor, self).__init__(observation_space=observation_space, features_dim=features_dim)
         self.cnn = nn.Sequential(
-            nn.Conv2d(frame_size, 32, (8,8), stride=(4,4), padding=0),
+            nn.Conv2d(frame_size, 32, (8, 8), stride=(4, 4), padding=0),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
-            nn.Flatten(start_dim=1, end_dim=-1)
+            nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1)),
+            nn.ReLU(),
+            nn.Flatten(),
         )
         with torch.no_grad():
             n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
@@ -64,14 +66,12 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
     ):
         super(CNNExtractorWithAttention, self).__init__(observation_space=observation_space, features_dim=features_dim)
 
-
-        # there is already a cnn in the base class, NatureCNN
         self.cnn = nn.Sequential(
-            nn.Conv2d(frame_size, 32, (8,8), stride=(4,4), padding=0),
+            nn.Conv2d(frame_size, 32, (8,8), stride=(4, 4), padding=0),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
-            nn.Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1)),
+            nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1)),
             nn.ReLU(),
             # nn.Flatten(start_dim=1, end_dim=-1)
         )
@@ -84,17 +84,14 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         self.linear = nn.Sequential(nn.Linear(36, 64), nn.ReLU(), nn.Linear(64, features_dim), nn.ReLU())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-
         batch_size, channels, *_ = x.shape
-
         x = self.cnn(x)
-
-
         y = x.reshape(x.size(2)*x.size(0), x.size(2), x.size(1))
         y, _ = self.self_attention(y, y, y)
         y = self.max_pool(y)
         y = y.reshape(batch_size, -1)
         x = self.linear(y)
         return x
+
 
 
