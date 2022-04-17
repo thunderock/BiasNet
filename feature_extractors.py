@@ -33,11 +33,12 @@ class CNNExtractor(BaseFeaturesExtractor):
     def __init__(
         self,
         observation_space: gym.spaces.Box = gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8),
-        features_dim: int = 512
+        features_dim: int = 512,
+        frame_size: int = 1,
     ):
         super(CNNExtractor, self).__init__(observation_space=observation_space, features_dim=features_dim)
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 32, (8,8), stride=(4,4), padding=0),
+            nn.Conv2d(frame_size, 32, (8,8), stride=(4,4), padding=0),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),
@@ -58,14 +59,15 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
     def __init__(
         self,
         observation_space: gym.spaces.Box = gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8),
-        features_dim: int = 512
+        features_dim: int = 512,
+        frame_size: int = 1
     ):
         super(CNNExtractorWithAttention, self).__init__(observation_space=observation_space, features_dim=features_dim)
 
 
         # there is already a cnn in the base class, NatureCNN
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 32, (8,8), stride=(4,4), padding=0),
+            nn.Conv2d(frame_size, 32, (8,8), stride=(4,4), padding=0),
             nn.ReLU(),
             nn.Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2)),
             nn.ReLU(),

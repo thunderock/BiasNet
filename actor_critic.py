@@ -2,13 +2,9 @@
 # @Author:      Ashutosh Tiwari
 # @Email:       checkashu@gmail.com
 # @Time:        4/12/22 6:03 AM
-from typing import Callable, Dict, List, Optional, Tuple, Type, Union
-
+from typing import Callable, Dict, Any, Optional, Type
 import gym
-import torch
 from torch import nn
-
-from stable_baselines3 import PPO, A2C
 from stable_baselines3.common.policies import ActorCriticCnnPolicy
 from stable_baselines3.common.torch_layers import NatureCNN
 
@@ -20,7 +16,8 @@ class A2CCNNPolicy(ActorCriticCnnPolicy):
         observation_space: gym.spaces.Space,
         action_space: gym.spaces.Space,
         lr_schedule: Callable[[float], float],
-        feature_extractor_class: Type[nn.Module] = NatureCNN,
+        features_extractor_class: Type[nn.Module],
+        features_extractor_kwargs: Optional[Dict[str, Any]] = dict(),
         *args,
         **kwargs,
     ):
@@ -35,7 +32,8 @@ class A2CCNNPolicy(ActorCriticCnnPolicy):
         )
         # Disable orthogonal initialization
         self.ortho_init = False
-        self.features_extractor_class = feature_extractor_class
+        # feature_extractor_class = kwargs.get("features_extractor_class", NatureCNN)
+        self.features_extractor_class = features_extractor_class(self.observation_space, **features_extractor_kwargs)
 
 
 
