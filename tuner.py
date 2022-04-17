@@ -59,8 +59,9 @@ class Tuner(object):
         return self.model.load(best_model_path), self.study.best_params
 
 
-# env = StreetFighterEnv()
 # model = A2C
+# env = StreetFighterEnv(record_file='models/{}'.format(model.__module__))
+#
 # policy_network = A2CCNNPolicy
 # frame_size = 1
 # timesteps = 1000000
@@ -69,5 +70,5 @@ class Tuner(object):
 # )
 #
 # tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size, timesteps=timesteps, save_dir='models')
-
-best_model = tuner.tune(n_trials=20, )
+#
+# best_model = tuner.tune(n_trials=20, )
