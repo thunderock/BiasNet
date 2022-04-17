@@ -6,8 +6,6 @@ from typing import Callable, Dict, Any, Optional, Type
 import gym
 from torch import nn
 from stable_baselines3.common.policies import ActorCriticCnnPolicy
-from stable_baselines3.common.torch_layers import NatureCNN
-
 
 
 class A2CCNNPolicy(ActorCriticCnnPolicy):
@@ -33,6 +31,6 @@ class A2CCNNPolicy(ActorCriticCnnPolicy):
         # Disable orthogonal initialization
         self.ortho_init = False
         self.features_extractor = features_extractor_class(self.observation_space, **features_extractor_kwargs)
-
+        self.features_dim = self.features_extractor.features_dim
 
 

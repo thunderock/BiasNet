@@ -10,17 +10,13 @@ from constants import *
 from utils import evaluate_model_policy, plot_study, plot_fig
 from trainer import get_trained_model
 import optuna
-from environment import StreetFighterEnv
-from stable_baselines3 import PPO, A2C
-from actor_critic import A2CCNNPolicy, NatureCNN
-from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 import os
 
 suppress_botorch_warnings(False)
 validate_input_scaling(True)
 
 class Tuner(object):
-    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=100000, save_dir='/tmp/models'):
+    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=100000, save_dir='/tmp/models', seed=SEED):
         self.model = model
         self.env = env
         self.policy_network = policy_network
@@ -32,6 +28,8 @@ class Tuner(object):
             shutil.rmtree(save_dir, ignore_errors=True)
         if not os.path.exists(self.save_dir):
             os.mkdir(self.save_dir)
+        self.env.seed(seed)
+        self.seed = seed
 
     @staticmethod
     def _get_trial_values(trial):
@@ -52,7 +50,7 @@ class Tuner(object):
 
         model = get_trained_model(
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
-            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params)
+            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params, seed=self.seed)
         reward = evaluate_model_policy(self.env, model)
         # print("Total Reward: {} for params: {}".format(reward, model_params))
         model.save(self.get_model_path(trial_params.number))
@@ -71,26 +69,25 @@ class Tuner(object):
         self.env.close()
         return study
 
-TIMESTEPS = 2
-N_TRIALS = 2
+# TIMESTEPS = 2
+# N_TRIALS = 2
 # FRAME_SIZE = 4
 
 ########################################################################################################################
 # for extractor in [ CNNExtractorWithAttention]:
-#     for FRAME_SIZE in [1]:
-#         model = A2C
-#         env = StreetFighterEnv()
-#         policy_network = A2CCNNPolicy
 #
-#         policy_kwargs = dict(
-#             features_extractor_class=extractor,
-#             features_extractor_kwargs=dict(frame_size=FRAME_SIZE, features_dim=512,),
-#         )
-#         tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs,
-#                       frame_size=FRAME_SIZE, timesteps=TIMESTEPS)
+#     model = A2C
+#     env = StreetFighterEnv()
+#     policy_network = A2CCNNPolicy
 #
-#         study = tuner.tune_study(n_trials=N_TRIALS, )
-# study.best_trial.number, study.best_params
+#     policy_kwargs = dict(
+#         features_extractor_class=extractor,
+#         features_extractor_kwargs=dict(features_dim=512,),
+#     )
+#     tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, timesteps=TIMESTEPS)
+#
+#     study = tuner.tune_study(n_trials=N_TRIALS, )
+# # study.best_trial.number, study.best_params
 
 
 ########################################################################################################################
