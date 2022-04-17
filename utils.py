@@ -17,11 +17,11 @@ def evaluate_model_policy(env, model, n_eval_episodes=5):
     :return: (float) Mean reward for the `n_eval_episodes` episodes
     """
     score = evaluate_policy(model, env, n_eval_episodes=n_eval_episodes)[0]
-    print("Evaluation using {} episodes: {}".format(n_eval_episodes, score))
     return score
 
 
 def plot_studies(study):
+    # only to be used with jupyter notebook
     optuna.visualization.plot_parallel_coordinate(study)
     optuna.visualization.plot_contour(study)
     optuna.visualization.plot_slice(study)

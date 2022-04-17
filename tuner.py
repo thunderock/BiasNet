@@ -47,6 +47,7 @@ class Tuner(object):
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
             model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params)
         reward = evaluate_model_policy(self.env, model)
+        print("Reward: {} for params: {}".format(reward, model_params))
         model.save(self.get_model_path(trial_params.number))
         return reward
 
@@ -68,6 +69,6 @@ policy_kwargs = dict(
     # features_extractor_kwargs=dict(observation_space=gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8)),
 )
 
-tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size, timesteps=timesteps)
+tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, frame_size=frame_size, timesteps=timesteps, save_dir='models')
 
-best_model = tuner.tune(n_trials=2)
+best_model = tuner.tune(n_trials=20, )

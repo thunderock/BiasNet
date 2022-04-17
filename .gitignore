@@ -132,6 +132,5 @@ dmypy.json
 *.parquet
 *.tsv
 *.csv
-models/*
 *idea
 *out
