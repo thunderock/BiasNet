@@ -11,7 +11,7 @@ from torch import nn
 
 from stable_baselines3 import PPO, A2C
 from stable_baselines3.common.policies import ActorCriticPolicy, ActorCriticCnnPolicy
-from stable_baselines3.common.torch_layers import NatureCNN, BaseFeaturesExtractor
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from environment import StreetFighterEnv
 import os
 import shutil
@@ -28,17 +28,14 @@ from torch.functional import F
 from stable_baselines3.common.preprocessing import maybe_transpose
 import numpy as np
 
-class CustomFeatureExtractor(BaseFeaturesExtractor):
+class CNNExtractor(BaseFeaturesExtractor):
 
     def __init__(
         self,
         observation_space: gym.spaces.Box = gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8),
         features_dim: int = 512
     ):
-        super(CustomFeatureExtractor, self).__init__(observation_space=observation_space, features_dim=features_dim)
-
-
-        # there is already a cnn in the base class, NatureCNN
+        super(CNNExtractor, self).__init__(observation_space=observation_space, features_dim=features_dim)
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 32, (8,8), stride=(4,4), padding=0),
             nn.ReLU(),
@@ -53,19 +50,17 @@ class CustomFeatureExtractor(BaseFeaturesExtractor):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.cnn(x)
-        print(x.shape)
-
         return self.linear(x)
 
 
-class CustomFeatureExtractorWithAttention(BaseFeaturesExtractor):
+class CNNExtractorWithAttention(BaseFeaturesExtractor):
 
     def __init__(
         self,
         observation_space: gym.spaces.Box = gym.spaces.Box(low=0, high=255, shape=(84, 84, 1), dtype=np.uint8),
         features_dim: int = 512
     ):
-        super(CustomFeatureExtractorWithAttention, self).__init__(observation_space=observation_space, features_dim=features_dim)
+        super(CNNExtractorWithAttention, self).__init__(observation_space=observation_space, features_dim=features_dim)
 
 
         # there is already a cnn in the base class, NatureCNN
@@ -87,24 +82,17 @@ class CustomFeatureExtractorWithAttention(BaseFeaturesExtractor):
         self.linear = nn.Sequential(nn.Linear(36, 64), nn.ReLU(), nn.Linear(64, features_dim), nn.ReLU())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # changing the input shape to (batch_size, height, width, channels)
-        # x = x.view(-1, 84, 84)
+
         batch_size, channels, *_ = x.shape
-        # print("1 ", x.shape)
+
         x = self.cnn(x)
 
 
         y = x.reshape(x.size(2)*x.size(0), x.size(2), x.size(1))
-        # x = x.reshape(x.size(2) * x.size(3), x.size(0), x.size(1))
         y, _ = self.self_attention(y, y, y)
-
-
         y = self.max_pool(y)
         y = y.reshape(batch_size, -1)
-        # print("1 ", y.shape)
         x = self.linear(y)
-        # x = F.log_softmax(x, dim=1)
-        # print(x.shape)
         return x
 
 
