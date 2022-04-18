@@ -16,7 +16,7 @@ suppress_botorch_warnings(False)
 validate_input_scaling(True)
 
 class Tuner(object):
-    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=100000, save_dir='/tmp/models', seed=SEED):
+    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=1000000, save_dir='/tmp/models', seed=SEED):
         self.model = model
         self.env = env
         self.policy_network = policy_network
@@ -69,23 +69,25 @@ class Tuner(object):
 
 # TIMESTEPS = 2
 # N_TRIALS = 2
-# FRAME_SIZE = 4
-
-########################################################################################################################
-# for extractor in [ CNNExtractorWithAttention]:
+# # FRAME_SIZE = 4
 #
+# ########################################################################################################################
+# for extractor in [CNNExtractor, CNNExtractorWithAttention]:
 #     model = A2C
-#     env = StreetFighterEnv()
+#     model_dir = 'models/bias'
+#     env = StreetFighterEnv(capture_movement=False)
 #     policy_network = A2CCNNPolicy
 #
 #     policy_kwargs = dict(
-#         features_extractor_class=extractor,
-#         features_extractor_kwargs=dict(features_dim=512,),
+#         features_extractor_class=CNNExtractorWithAttention,
+#         features_extractor_kwargs=dict(features_dim=512, ),
+#         actor_critic_class=ActorCriticLayer
 #     )
-#     tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs, timesteps=TIMESTEPS)
+#     tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs,
+#                   timesteps=TIMESTEPS, save_dir=model_dir)
 #
 #     study = tuner.tune_study(n_trials=N_TRIALS, )
-# # study.best_trial.number, study.best_params
+#     print(study.best_trial.number, study.best_params)
 
 
 ########################################################################################################################
