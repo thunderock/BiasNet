@@ -1,2 +1,0 @@
-python -m retro.import .
-python /home/ashutosh/anaconda3/lib/python3.8/site-packages/retro/scripts/playback_movie.py *bk2
