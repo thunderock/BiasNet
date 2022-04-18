@@ -10,12 +10,13 @@ from constants import *
 from utils import evaluate_model_policy, plot_study, plot_fig
 from trainer import get_trained_model
 import optuna
-from environment import StreetFighterEnv
-from stable_baselines3 import PPO, A2C
-from actor_critic import A2CCNNPolicy
-from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 import os
-from layers import ActorCriticLayer
+# from environment import StreetFighterEnv
+# from stable_baselines3 import PPO, A2C
+# from actor_critic import A2CCNNPolicy
+# from feature_extractors import CNNExtractorWithAttention, CNNExtractor
+# import os
+# from layers import ActorCriticLayer
 
 suppress_botorch_warnings(False)
 validate_input_scaling(True)
