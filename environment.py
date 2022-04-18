@@ -30,7 +30,18 @@ class StreetFighterEnv(Env):
                                   use_restricted_actions=retro.Actions.FILTERED, state=state)
 
     # reward function
-    def get_reward(self, info, reward=None): return info['score'] - self.score
+    def get_reward(self, info, win_reward=10000, getting_hit_penalty=.5, hitting_enemy_reward=1):
+        # reward for hitting enemy
+        score = info['score'] - self.score
+        # penalty for losing health
+        health = info['health'] - self.health  # between [-176, 0]
+        # reward for winning
+        win = 0
+        if info['enemy_health'] == 0:
+            win = 1
+        elif info['health'] == 0:
+            win = -1
+        return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
@@ -40,8 +51,8 @@ class StreetFighterEnv(Env):
             # if we want images only which capture movement
             obs = obs - self.previous_frame
         self.previous_frame = obs
-        reward = self.get_reward(info, reward)
-        self.score = info['score']
+        reward = self.get_reward(info)
+        self.score, self.enemy_health, self.health = info['score'], info['enemy_health'], info['health']
         return obs, reward, done, info
 
     def render(self, *args, **kwargs):
@@ -52,6 +63,8 @@ class StreetFighterEnv(Env):
         obs = self.preprocess(obs)
         self.previous_frame = obs
         self.score = 0
+        self.health = 176
+        self.enemy_health = 176
         return obs
 
     def close(self):

@@ -6,7 +6,7 @@
 from stable_baselines3 import A2C
 from environment import StreetFighterEnv
 import sys
-import time
+
 
 def main(model_path, record_path, capture_movement):
     env = StreetFighterEnv(record_file=record_path, capture_movement=capture_movement)
@@ -25,7 +25,7 @@ def main(model_path, record_path, capture_movement):
             obs, reward, done, info = env.step(action)
             # time.sleep(0.01)
             if reward != 0: print(reward)
-    print(iteration)
+    print("iterations: ", iteration)
     return True
 
 if __name__ == '__main__':

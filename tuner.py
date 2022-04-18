@@ -10,7 +10,12 @@ from constants import *
 from utils import evaluate_model_policy, plot_study, plot_fig
 from trainer import get_trained_model
 import optuna
+from environment import StreetFighterEnv
+from stable_baselines3 import PPO, A2C
+from actor_critic import A2CCNNPolicy
+from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 import os
+from layers import ActorCriticLayer
 
 suppress_botorch_warnings(False)
 validate_input_scaling(True)
@@ -67,12 +72,12 @@ class Tuner(object):
         self.env.close()
         return study
 
-# TIMESTEPS = 2
+# TIMESTEPS = 200000
 # N_TRIALS = 2
 # # FRAME_SIZE = 4
 #
 # ########################################################################################################################
-# for extractor in [CNNExtractor, CNNExtractorWithAttention]:
+# for extractor in [CNNExtractorWithAttention]:
 #     model = A2C
 #     model_dir = 'models/bias'
 #     env = StreetFighterEnv(capture_movement=False)
@@ -88,7 +93,7 @@ class Tuner(object):
 #
 #     study = tuner.tune_study(n_trials=N_TRIALS, )
 #     print(study.best_trial.number, study.best_params)
-
+#
 
 ########################################################################################################################
 

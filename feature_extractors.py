@@ -36,7 +36,6 @@ class CNNExtractor(BaseFeaturesExtractor):
         x = x.to(DEVICE)
         x = self.cnn(x)
         x = self.linear(x)
-        # print(x.shape)
         return x
 
 
@@ -60,6 +59,7 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
             features_out = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape
             features_out = features_out[1]
         self.cnn = self.cnn.to(DEVICE)
+        # torch multihead attention already includes calculating softmax and MLP
         self.self_attention = nn.MultiheadAttention(features_out, num_heads=4).to(DEVICE)
         self.max_pool = nn.Sequential(nn.MaxPool2d(kernel_size=(4, 4)), nn.Flatten(), nn.ReLU()).to(DEVICE)
         self.linear = nn.Sequential(nn.Linear(36, 64), nn.ReLU(), nn.Linear(64, features_dim), nn.ReLU()).to(DEVICE)
