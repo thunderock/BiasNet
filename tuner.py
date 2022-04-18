@@ -28,7 +28,6 @@ class Tuner(object):
             shutil.rmtree(save_dir, ignore_errors=True)
         if not os.path.exists(self.save_dir):
             os.mkdir(self.save_dir)
-        self.env.seed(seed)
         self.seed = seed
 
     @staticmethod
@@ -52,7 +51,6 @@ class Tuner(object):
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
             model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params, seed=self.seed)
         reward = evaluate_model_policy(self.env, model)
-        # print("Total Reward: {} for params: {}".format(reward, model_params))
         model.save(self.get_model_path(trial_params.number))
         return reward
 

@@ -2,7 +2,7 @@
 # @Author:      Ashutosh Tiwari
 # @Email:       checkashu@gmail.com
 # @Time:        4/14/22 4:49 AM
-
+from constants import *
 import gym
 import torch
 from torch import nn
@@ -29,10 +29,11 @@ class CNNExtractor(BaseFeaturesExtractor):
         )
         with torch.no_grad():
             n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
-
-        self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU())
+        self.cnn = self.cnn.to(DEVICE)
+        self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU()).to(DEVICE)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.to(DEVICE)
         x = self.cnn(x)
         x = self.linear(x)
         # print(x.shape)
@@ -47,7 +48,6 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         features_dim: int = 512,
     ):
         super(CNNExtractorWithAttention, self).__init__(observation_space=observation_space, features_dim=features_dim)
-        # there is already a cnn in the base class, NatureCNN
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 32, (8,8), stride=(4, 4), padding=0),
             nn.ReLU(),
@@ -59,12 +59,13 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         with torch.no_grad():
             features_out = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape
             features_out = features_out[1]
-
-        self.self_attention = nn.MultiheadAttention(features_out, num_heads=4)
-        self.max_pool = nn.Sequential(nn.MaxPool2d(kernel_size=(4, 4)), nn.Flatten(), nn.ReLU())
-        self.linear = nn.Sequential(nn.Linear(36, 64), nn.ReLU(), nn.Linear(64, features_dim), nn.ReLU())
+        self.cnn = self.cnn.to(DEVICE)
+        self.self_attention = nn.MultiheadAttention(features_out, num_heads=4).to(DEVICE)
+        self.max_pool = nn.Sequential(nn.MaxPool2d(kernel_size=(4, 4)), nn.Flatten(), nn.ReLU()).to(DEVICE)
+        self.linear = nn.Sequential(nn.Linear(36, 64), nn.ReLU(), nn.Linear(64, features_dim), nn.ReLU()).to(DEVICE)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.to(DEVICE)
         batch_size, channels, *_ = x.shape
         x = self.cnn(x)
         y = x.reshape(x.size(2)*x.size(0), x.size(2), x.size(1))
