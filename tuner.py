@@ -10,7 +10,9 @@ from constants import *
 from utils import evaluate_model_policy, plot_study, plot_fig, load_study
 from trainer import get_trained_model
 import optuna
+from optuna.integration.wandb import WeightsAndBiasesCallback
 import os
+
 
 suppress_botorch_warnings(False)
 validate_input_scaling(True)
@@ -61,24 +63,25 @@ class Tuner(object):
         return self.model.load(best_model_path)
     
     def tune_study(self, n_trials=1, study_name='study', study_dir=None):
+        wandb_kwargs = {"project": study_name}
+        wandbc = WeightsAndBiasesCallback(wandb_kwargs=wandb_kwargs)
         if not study_dir:
             study_dir = "sqlite:///{}/example.db".format(self.save_dir)
         sampler = optuna.integration.BoTorchSampler()
         study = optuna.create_study(study_name=study_name, storage=study_dir, direction='maximize', sampler=sampler)
-        study.optimize(lambda trial: self._tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True)
+        study.optimize(lambda trial: self._tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True, callbacks=[wandbc])
         self.env.close()
         return study, (study_name, study_dir)
 
 # TIMESTEPS = 2
 # N_TRIALS = 2
 # # FRAME_SIZE = 4
-#
-#
+
+
 # from environment import StreetFighterEnv
 # from stable_baselines3 import A2C
 # from actor_critic import A2CCNNPolicy
 # from feature_extractors import CNNExtractorWithAttention, CNNExtractor
-# import os
 # from layers import ActorCriticLayer
 # ########################################################################################################################
 # for extractor in [CNNExtractorWithAttention]:
