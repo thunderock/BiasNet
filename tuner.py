@@ -42,14 +42,17 @@ class Tuner(object):
     def get_model_path(self, trial_number):
         return os.path.join(self.save_dir, 'trial_{}_best_model'.format(trial_number))
 
-    def __tune_model(self, trial_params):
+    def _tune_model(self, trial_params):
         model_params = self._get_trial_values(trial_params)
+        return self._evaluate_model(model_params, trial_params.number)
 
+    def _evaluate_model(self, model_params, trial_number):
         model = get_trained_model(
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
-            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params, seed=self.seed)
+            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params,
+            seed=self.seed)
         reward = evaluate_model_policy(self.env, model)
-        model.save(self.get_model_path(trial_params.number))
+        model.save(self.get_model_path(trial_number))
         return reward
 
     def get_model(self, study):
@@ -57,13 +60,12 @@ class Tuner(object):
         best_model_path = self.get_model_path(best_iteration)
         return self.model.load(best_model_path)
     
-    
     def tune_study(self, n_trials=1, study_name='study', study_dir=None):
         if not study_dir:
             study_dir = "sqlite:///{}/example.db".format(self.save_dir)
         sampler = optuna.integration.BoTorchSampler()
         study = optuna.create_study(study_name=study_name, storage=study_dir, direction='maximize', sampler=sampler)
-        study.optimize(lambda trial: self.__tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True)
+        study.optimize(lambda trial: self._tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True)
         self.env.close()
         return study, (study_name, study_dir)
 
