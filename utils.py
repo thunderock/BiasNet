@@ -8,6 +8,11 @@ from stable_baselines3.common.evaluation import evaluate_policy
 import optuna
 import plotly
 
+
+def load_study(study_name, path):
+    return optuna.load_study(study_name, path)
+
+
 def evaluate_model_policy(env, model, n_eval_episodes=5):
     """
     Evaluate a policy

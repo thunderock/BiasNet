@@ -7,21 +7,16 @@
 from botorch.settings import suppress_botorch_warnings, validate_input_scaling
 import shutil
 from constants import *
-from utils import evaluate_model_policy, plot_study, plot_fig
+from utils import evaluate_model_policy, plot_study, plot_fig, load_study
 from trainer import get_trained_model
 import optuna
 import os
-# from environment import StreetFighterEnv
-# from stable_baselines3 import PPO, A2C
-# from actor_critic import A2CCNNPolicy
-# from feature_extractors import CNNExtractorWithAttention, CNNExtractor
-# import os
-# from layers import ActorCriticLayer
 
 suppress_botorch_warnings(False)
 validate_input_scaling(True)
 
 class Tuner(object):
+
     def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=1000000, save_dir='/tmp/models', seed=SEED):
         self.model = model
         self.env = env
@@ -44,11 +39,8 @@ class Tuner(object):
             'gae_lambda': trial.suggest_uniform('gae_lambda', 0.8, 0.99)
         }
 
-
     def get_model_path(self, trial_number):
         return os.path.join(self.save_dir, 'trial_{}_best_model'.format(trial_number))
-
-
 
     def __tune_model(self, trial_params):
         model_params = self._get_trial_values(trial_params)
@@ -66,17 +58,26 @@ class Tuner(object):
         return self.model.load(best_model_path)
     
     
-    def tune_study(self, n_trials=1):
+    def tune_study(self, n_trials=1, study_name='study', study_dir=None):
+        if not study_dir:
+            study_dir = "sqlite:///{}/example.db".format(self.save_dir)
         sampler = optuna.integration.BoTorchSampler()
-        study = optuna.create_study(direction='maximize', sampler=sampler)
+        study = optuna.create_study(study_name=study_name, storage=study_dir, direction='maximize', sampler=sampler)
         study.optimize(lambda trial: self.__tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True)
         self.env.close()
-        return study
+        return study, (study_name, study_dir)
 
-# TIMESTEPS = 200000
+# TIMESTEPS = 2
 # N_TRIALS = 2
 # # FRAME_SIZE = 4
 #
+#
+# from environment import StreetFighterEnv
+# from stable_baselines3 import A2C
+# from actor_critic import A2CCNNPolicy
+# from feature_extractors import CNNExtractorWithAttention, CNNExtractor
+# import os
+# from layers import ActorCriticLayer
 # ########################################################################################################################
 # for extractor in [CNNExtractorWithAttention]:
 #     model = A2C
@@ -92,22 +93,9 @@ class Tuner(object):
 #     tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs,
 #                   timesteps=TIMESTEPS, save_dir=model_dir)
 #
-#     study = tuner.tune_study(n_trials=N_TRIALS, )
+#     study, (study_name, study_location) = tuner.tune_study(n_trials=N_TRIALS, study_name="study")
+#
+#     loaded_study = load_study(study_name, study_location)
+#
 #     print(study.best_trial.number, study.best_params)
-#
-
-########################################################################################################################
-
-# model = A2C
-# env = StreetFighterEnv()
-# policy_network = A2CCNNPolicy
-#
-# policy_kwargs = dict(
-#     features_extractor_class=CNNExtractorWithAttention,
-#     features_extractor_kwargs=dict(frame_size=FRAME_SIZE, features_dim=512,),
-# )
-# tuner = Tuner(model=model, env=env, policy_network=policy_network, policy_args=policy_kwargs,
-#               frame_size=FRAME_SIZE, timesteps=TIMESTEPS)
-#
-# study = tuner.tune_study(n_trials=N_TRIALS, )
-# study.best_trial.number, study.best_params
+#     assert len(loaded_study.trials) == len(study.trials)
