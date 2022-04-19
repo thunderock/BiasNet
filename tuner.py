@@ -34,9 +34,9 @@ class Tuner(object):
     @staticmethod
     def _get_trial_values(trial):
         return {
-            'gamma': trial.suggest_loguniform('gamma', 0.8, 0.9999),
-            'learning_rate': trial.suggest_loguniform('learning_rate', 1e-5, 1e-4),
-            'gae_lambda': trial.suggest_uniform('gae_lambda', 0.8, 0.99)
+            'gamma': trial.suggest_loguniform('gamma', 0.8, 0.85),
+            'learning_rate': trial.suggest_loguniform('learning_rate', 1e-4, 4e-4),
+            'gae_lambda': trial.suggest_uniform('gae_lambda', 0.8, 0.9)
         }
 
     def get_model_path(self, trial_number):
@@ -63,7 +63,7 @@ class Tuner(object):
         wandb_kwargs = {"project": study_name}
         wandbc = WeightsAndBiasesCallback(wandb_kwargs=wandb_kwargs)
         if not study_dir:
-            study_dir = "sqlite:///{}/example.db".format(self.save_dir)
+            study_dir = "sqlite:///{}/{}.db".format(self.save_dir, study_name)
         sampler = optuna.integration.BoTorchSampler()
         study = optuna.create_study(study_name=study_name, storage=study_dir, direction='maximize', sampler=sampler)
         study.optimize(lambda trial: self._tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True, callbacks=[wandbc])
