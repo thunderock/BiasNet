@@ -22,7 +22,7 @@ N_TRIALS = 1
 PLOTLY_CONFIG = {"staticPlot": True}
 
 model = A2C
-model_dir = 'models/bias'
+model_dir = 'models/without_bias'
 env = StreetFighterEnv(capture_movement=False, training=True)
 policy_network = A2CCNNPolicy
 
