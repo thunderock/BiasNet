@@ -17,7 +17,7 @@ import os
 from layers import ActorCriticLayer
 
 
-TIMESTEPS = 50000000
+TIMESTEPS = 5000000
 N_TRIALS = 1
 PLOTLY_CONFIG = {"staticPlot": True}
 
