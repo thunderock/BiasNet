@@ -11,7 +11,7 @@ import cv2
 import shutil
 
 class StreetFighterEnv(Env):
-    def __init__(self, record_file=None, state=None, capture_movement=False, image_size=84):
+    def __init__(self, record_file=None, state=None, capture_movement=False, image_size=84, training=True):
 
         super().__init__()
         self.image_size = image_size
@@ -28,20 +28,25 @@ class StreetFighterEnv(Env):
         else:
             self.env = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis',
                                   use_restricted_actions=retro.Actions.FILTERED, state=state)
+        self.training = training
 
     # reward function
-    def get_reward(self, info, win_reward=10000, getting_hit_penalty=.5, hitting_enemy_reward=1):
+    def get_reward(self, info, win_reward=10000, getting_hit_penalty=.5, hitting_enemy_reward=1., survival_reward=1.):
         # reward for hitting enemy
         score = info['score'] - self.score
+        if not self.training:
+            return score
         # penalty for losing health
         health = info['health'] - self.health  # between [-176, 0]
         # reward for winning
-        win = 0
+        win, survival = 0, 0
         if info['enemy_health'] == 0:
             win = 1
         elif info['health'] == 0:
             win = -1
-        return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty
+        if info['health'] != 0:
+            survival = 10
+        return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty + survival * survival_reward
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)

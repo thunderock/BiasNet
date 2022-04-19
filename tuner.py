@@ -19,19 +19,17 @@ validate_input_scaling(True)
 
 class Tuner(object):
 
-    def __init__(self, model, env, policy_network, policy_args, frame_size=1, timesteps=1000000, save_dir='/tmp/models', seed=SEED):
+    def __init__(self, model, env, policy_network, policy_args, timesteps=1000000, save_dir='/tmp/models'):
         self.model = model
         self.env = env
         self.policy_network = policy_network
         self.policy_args = policy_args
-        self.frame_size = frame_size
         self.timesteps = timesteps
         self.save_dir = save_dir
         if os.path.exists(save_dir):
             shutil.rmtree(save_dir, ignore_errors=True)
         if not os.path.exists(self.save_dir):
             os.mkdir(self.save_dir)
-        self.seed = seed
 
     @staticmethod
     def _get_trial_values(trial):
@@ -51,8 +49,7 @@ class Tuner(object):
     def _evaluate_model(self, model_params, trial_number):
         model = get_trained_model(
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
-            model=self.model, timesteps=self.timesteps, frame_size=self.frame_size, model_params=model_params,
-            seed=self.seed)
+            model=self.model, timesteps=self.timesteps, model_params=model_params)
         reward = evaluate_model_policy(self.env, model)
         model.save(self.get_model_path(trial_number))
         return reward
