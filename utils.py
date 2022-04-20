@@ -5,8 +5,34 @@
 
 
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3 import A2C
 import optuna
 import plotly
+from environment import StreetFighterEnv
+
+
+def record_model_playing(model_path, record_path, capture_movement, render=False):
+    env = StreetFighterEnv(record_file=record_path, capture_movement=capture_movement, training=False)
+    model = A2C.load(model_path)
+    obs = env.reset()
+    iteration = 0
+    done = False
+    total_reward = 0
+    for game in range(1):
+        while not done:
+            iteration += 1
+            if done:
+                obs = env.reset()
+            if render:
+                env.render()
+            action, _ = model.predict(obs)
+            obs, reward, done, info = env.step(action)
+            # time.sleep(0.01)
+            if reward != 0: print(reward)
+            total_reward += reward
+    print("iterations: ", iteration)
+    print("total reward: ", total_reward)
+    return True
 
 
 def load_study(study_name, path):
