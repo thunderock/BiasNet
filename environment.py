@@ -9,13 +9,13 @@ from gym import Env
 from gym.spaces import MultiBinary, Box
 import cv2
 import shutil
+from utils import GameState
 
 class StreetFighterEnv(Env):
-    def __init__(self, record_file=None, state=None, capture_movement=False, image_size=84, training=True):
-
+    def __init__(self, state, record_file=None, capture_movement=False, image_size=84, training=True):
+        assert state in GameState.value, "Invalid state"
         super().__init__()
         self.image_size = image_size
-        state = "Champion.Level1.RyuVsGuile" if state is None else state
         self.observation_space = Box(low=0, high=255, shape=(self.image_size, self.image_size, 1), dtype=np.uint8)
         self.action_space = MultiBinary(12)
         # to capture only the movement in last frame

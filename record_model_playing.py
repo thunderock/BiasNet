@@ -13,9 +13,11 @@ if __name__ == '__main__':
     render = False
     record_path = './recordings/'
     try:
-        record_path = sys.argv[2]
-        capture_movement = sys.argv[3]
-        render = sys.argv[4]
+        capture_movement = sys.argv[2]
+        render = sys.argv[3]
+        record_path = sys.argv[4]
     except IndexError:
         pass
+    print("model_path: {} \nrecord_path: {} \ncapture_movement: {} \nrender: {}".format(model_path, record_path,
+                                                                                         capture_movement, render))
     record_model_playing(model_path, record_path, capture_movement, render)

@@ -3,13 +3,26 @@
 # @Email:       checkashu@gmail.com
 # @Time:        4/16/22 8:50 PM
 
-
+from constants import *
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3 import A2C
 import optuna
 import plotly
 from environment import StreetFighterEnv
 import time
+from enum import Enum
+
+
+class GameState(Enum):
+    GUILE = STATE_GUILE
+    ZANGIEF = STATE_ZANGIEF
+    DAHLISM = STATE_DAHLISM
+    EHDONA = STATE_EHDONA
+    CHUNLI = STATE_CHUNLI
+    BLANKA = STATE_BLANKA
+    KEN = STATE_KEN
+    RYU = STATE_RYU
+
 
 def record_model_playing(model_path, record_path, capture_movement, render=False):
     env = StreetFighterEnv(record_file=record_path, capture_movement=capture_movement, training=False)
