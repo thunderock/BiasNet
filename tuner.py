@@ -53,7 +53,6 @@ class Tuner(object):
         reward = evaluate_model_policy(self.env, model)
         model.save(self.get_model_path(trial_number))
         if return_model:
-            self.env.close()
             return reward, model
         return reward
 
