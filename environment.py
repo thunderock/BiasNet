@@ -31,7 +31,7 @@ class StreetFighterEnv(Env):
         self.training = training
 
     # reward function
-    def get_reward(self, info, win_reward=10000, getting_hit_penalty=.5, hitting_enemy_reward=1., survival_reward=1.):
+    def get_reward(self, info, win_reward=10000, getting_hit_penalty=1., hitting_enemy_reward=1.):
         # reward for hitting enemy
         score = info['score'] - self.score
         if not self.training:
@@ -44,9 +44,9 @@ class StreetFighterEnv(Env):
             win = 1
         elif info['health'] == 0:
             win = -1
-        if info['health'] != 0:
-            survival = 10
-        return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty + survival * survival_reward
+        # if info['health'] != 0:
+        #     survival = 10
+        return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)

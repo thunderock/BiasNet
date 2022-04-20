@@ -46,12 +46,14 @@ class Tuner(object):
         model_params = self._get_trial_values(trial_params)
         return self._evaluate_model(model_params, trial_params.number)
 
-    def _evaluate_model(self, model_params, trial_number):
+    def _evaluate_model(self, model_params, trial_number, return_model=False):
         model = get_trained_model(
             env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
-            model=self.model, timesteps=self.timesteps, model_params=model_params)
+            model=self.model, timesteps=self.timesteps, model_params=model_params, log_dir=self.save_dir + '/trial_{}'.format(trial_number))
         reward = evaluate_model_policy(self.env, model)
         model.save(self.get_model_path(trial_number))
+        if return_model:
+            return reward, model
         return reward
 
     def get_model(self, study):

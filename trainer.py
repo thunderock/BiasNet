@@ -14,7 +14,7 @@ def _get_model(model_type, env, policy_network, feature_extractor_kwargs, log_di
 
 
 def get_trained_model(env, policy_network, feature_extractor_kwargs, model, timesteps,
-                      model_params, monitor_log_file=None, log_dir=None, seed=SEED, verbose=0):
+                      model_params, monitor_log_file=None, log_dir=None, seed=SEED, verbose=VERBOSE):
     # print(model_params)
     env = Monitor(env, monitor_log_file, allow_early_resets=True)
     env = DummyVecEnv([lambda: env])
