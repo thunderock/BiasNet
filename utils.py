@@ -9,7 +9,7 @@ from stable_baselines3 import A2C
 import optuna
 import plotly
 from environment import StreetFighterEnv
-
+import time
 
 def record_model_playing(model_path, record_path, capture_movement, render=False):
     env = StreetFighterEnv(record_file=record_path, capture_movement=capture_movement, training=False)
@@ -25,9 +25,10 @@ def record_model_playing(model_path, record_path, capture_movement, render=False
                 obs = env.reset()
             if render:
                 env.render()
+                time.sleep(0.01)
             action, _ = model.predict(obs)
             obs, reward, done, info = env.step(action)
-            # time.sleep(0.01)
+
             if reward != 0: print(reward)
             total_reward += reward
     print("iterations: ", iteration)
