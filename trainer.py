@@ -9,8 +9,7 @@ from constants import *
 
 
 def _get_model(model_type, env, policy_network, feature_extractor_kwargs, log_dir=None, model_params=None, seed=SEED, verbose=VERBOSE, n_steps=BATCH_SIZE):
-    return model_type(policy_network, env, policy_kwargs=feature_extractor_kwargs,
-                      seed=seed, verbose=verbose, tensorboard_log=log_dir, n_steps=n_steps, **model_params)
+    return model_type(policy_network, env, policy_kwargs=feature_extractor_kwargs, seed=seed, verbose=verbose, tensorboard_log=log_dir, n_steps=n_steps, **model_params)
 
 
 def get_trained_model(env, policy_network, feature_extractor_kwargs, model, timesteps,

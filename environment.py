@@ -13,7 +13,7 @@ from utils import GameState
 
 class StreetFighterEnv(Env):
     def __init__(self, state, record_file=None, capture_movement=False, image_size=84, training=True):
-        assert state in GameState.value, "Invalid state"
+        assert state in GameState._value2member_map_, "Invalid state"
         super().__init__()
         self.image_size = image_size
         self.observation_space = Box(low=0, high=255, shape=(self.image_size, self.image_size, 1), dtype=np.uint8)

@@ -6,12 +6,11 @@
 
 from botorch.settings import suppress_botorch_warnings, validate_input_scaling
 import shutil
-from constants import *
-from utils import evaluate_model_policy, plot_study, plot_fig, load_study
+from utils import evaluate_model_policy
 from trainer import get_trained_model
 import optuna
-from optuna.integration.wandb import WeightsAndBiasesCallback
 import os
+from environment import StreetFighterEnv
 
 
 suppress_botorch_warnings(False)
@@ -19,9 +18,10 @@ validate_input_scaling(True)
 
 class Tuner(object):
 
-    def __init__(self, model, env, policy_network, policy_args, timesteps=1000000, save_dir='/tmp/models'):
+    def __init__(self, model, capture_movement, state, policy_network, policy_args, timesteps=1000000, save_dir='/tmp/models'):
         self.model = model
-        self.env = env
+        self.capture_movement = capture_movement
+        self.state = state
         self.policy_network = policy_network
         self.policy_args = policy_args
         self.timesteps = timesteps
@@ -44,14 +44,17 @@ class Tuner(object):
 
     def _tune_model(self, trial_params):
         model_params = self._get_trial_values(trial_params)
-        return self._evaluate_model(model_params, trial_params.number)
+        env = StreetFighterEnv(state=self.state, capture_movement=self.capture_movement, training=True)
+        return self._evaluate_model(env, model_params, trial_params.number)
 
-    def _evaluate_model(self, model_params, trial_number, return_model=False):
+    def _evaluate_model(self, env, model_params, trial_number, return_model=False, save_model=True):
         model = get_trained_model(
-            env=self.env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
+            env=env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
             model=self.model, timesteps=self.timesteps, model_params=model_params, log_dir=self.save_dir + '/trial_{}'.format(trial_number))
-        reward = evaluate_model_policy(self.env, model)
-        model.save(self.get_model_path(trial_number))
+        reward = evaluate_model_policy(env, model)
+        env.close()
+        if save_model:
+            model.save(self.get_model_path(trial_number))
         if return_model:
             return reward, model
         return reward
@@ -61,15 +64,12 @@ class Tuner(object):
         best_model_path = self.get_model_path(best_iteration)
         return self.model.load(best_model_path)
     
-    def tune_study(self, n_trials=1, study_name='study', study_dir=None):
-        wandb_kwargs = {"project": study_name}
-        wandbc = WeightsAndBiasesCallback(wandb_kwargs=wandb_kwargs)
+    def tune_study(self, n_trials=1, study_name='study', study_dir=None, n_jobs=1):
         if not study_dir:
             study_dir = "sqlite:///{}/{}.db".format(self.save_dir, study_name)
         sampler = optuna.integration.BoTorchSampler()
         study = optuna.create_study(study_name=study_name, storage=study_dir, direction='maximize', sampler=sampler)
-        study.optimize(lambda trial: self._tune_model(trial), n_trials=n_trials, n_jobs=1, show_progress_bar=True, callbacks=[wandbc])
-        self.env.close()
+        study.optimize(lambda trial: self._tune_model(trial), n_trials=n_trials, n_jobs=n_jobs, show_progress_bar=True)
         return study, (study_name, study_dir)
 
 # TIMESTEPS = 2
