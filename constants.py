@@ -22,4 +22,4 @@ STATE_BLANKA = 'blanka.state'
 STATE_KEN = 'ken.state'
 STATE_RYU = 'ryu.state'
 
-PARALLEL_ENV_COUNT = 1
+PARALLEL_ENV_COUNT = 3
