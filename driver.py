@@ -87,8 +87,7 @@ if __name__ == "__main__":
     model_params = {'gamma': 0.8074138106735396, 'learning_rate': 0.0001, 'gae_lambda': 0.8787060424267222}
     model_name = "A2C"
     model_dir = "models/{}_{}".format("biased" if args.bias else "unbiased", "capture_movement" if args.capture_movement else "no_capture_movement")
-    # time_steps = 5000000
-    time_steps = 1
+    time_steps = 5000000
     trials = 5
     if args.command == "train":
         trainer(bias=args.bias, capture_movement=args.capture_movement, model_params=model_params, time_steps=time_steps, model_dir=model_dir, model_name=model_name)

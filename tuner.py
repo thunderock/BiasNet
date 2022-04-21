@@ -4,12 +4,13 @@
 # @Time:        4/16/22 11:10 PM
 
 
-from botorch.settings import suppress_botorch_warnings, validate_input_scaling
+import os
+from pathlib import Path
 import shutil
+from botorch.settings import suppress_botorch_warnings, validate_input_scaling
 from utils import evaluate_model_policy
 from trainer import get_trained_model
 import optuna
-import os
 from environment import StreetFighterEnv
 
 
@@ -29,7 +30,7 @@ class Tuner(object):
         if os.path.exists(save_dir):
             shutil.rmtree(save_dir, ignore_errors=True)
         if not os.path.exists(self.save_dir):
-            os.mkdir(self.save_dir)
+            Path(self.save_dir).mkdir(parents=True)
 
     @staticmethod
     def _get_trial_values(trial):
