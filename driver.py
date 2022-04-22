@@ -28,6 +28,7 @@ def recorder(model_path, capture_movement, state, model_name, render, record_dir
     model = model.load(model_path)
     record_model_playing(env=env, model=model, render=render)
 
+
 def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, trials, state):
 
 
@@ -43,13 +44,13 @@ def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, tr
     plot_study(study, path=os.path.join(model_dir, study_name))
     print("state: {}, study: {}".format(state.name, study_name))
 
+
 def tuner(bias, capture_movement, time_steps, model_dir, model_name, trials):
     print("bias: {}, capture_movement: {}, time_steps: {}, model_dir: {}, model_name: {}, trials: {}".format(bias, capture_movement, time_steps, model_dir, model_name, trials))
     assert bias in [True, False] and capture_movement in [True, False] and isinstance(model_params, dict) and model_name in ["A2C", "PPO"] and time_steps > 0
     pool = Pool(N_JOBS)
     pool.starmap(_tuner_wrapper,
                  [(bias, capture_movement, time_steps, model_dir, model_name, trials, state) for state in GameState])
-
 
 
 def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, model_name, state):
@@ -77,7 +78,7 @@ def trainer(bias, capture_movement, model_params, time_steps, model_dir, model_n
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--command", type=str, choices=["train", "tuner", "record"], required=True)
+    parser.add_argument("--command", type=str, choices=["train", "tune", "record"], required=True)
     parser.add_argument("--bias", type=ast.literal_eval, default=True)
     parser.add_argument("--capture_movement", type=ast.literal_eval, default=True)
     parser.add_argument("--model_path", type=str, default=None)
@@ -90,11 +91,11 @@ if __name__ == "__main__":
     model_name = "A2C"
     model_dir = "models/{}_{}".format("biased" if args.bias else "unbiased", "capture_movement" if args.capture_movement else "no_capture_movement")
     time_steps = 5000000
-    trials = 5
+    trials = 2
     N_JOBS = args.n_jobs
     if args.command == "train":
         trainer(bias=args.bias, capture_movement=args.capture_movement, model_params=model_params, time_steps=time_steps, model_dir=model_dir, model_name=model_name)
-    elif args.command == "tuner":
+    elif args.command == "tune":
         tuner(bias=args.bias, capture_movement=args.capture_movement, time_steps=time_steps,model_dir=model_dir, model_name=model_name, trials=trials)
     elif args.command == "record":
         recorder(model_path=args.model_path, capture_movement=args.capture_movement, state=args.state, model_name=model_name, render=args.render, record_dir=args.record_path)

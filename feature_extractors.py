@@ -68,12 +68,12 @@ class CNNExtractorWithAttention(BaseFeaturesExtractor):
         x = x.to(DEVICE)
         batch_size, channels, *_ = x.shape
         x = self.cnn(x)
-        y = x.reshape(x.size(2)*x.size(0), x.size(2), x.size(1))
-        y, _ = self.self_attention(y, y, y)
-        y = self.max_pool(y)
-        y = y.reshape(batch_size, -1)
-
+        x = torch.cat((x, ))
+        y = x.reshape(x.size(2)*x.size(0), x.size(2), x.size(1))  # 1, 8, 9, 9
+        y, _ = self.self_attention(y, y, y)  # 9, 9, 8
+        y = self.max_pool(y)  # 9, 9, 8
+        y = y.reshape(batch_size, -1)  # 9, 4
         x = self.linear(y)
-        return x
+        return x  # 1, 512
 
 
