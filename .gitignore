@@ -139,3 +139,4 @@ wandb/*
 *.zip
 *.db
 recordings/*
+experiments/*
