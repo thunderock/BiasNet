@@ -41,7 +41,7 @@ def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, tr
                   policy_args=policy_kwargs,
                   timesteps=time_steps, save_dir=os.path.join(model_dir, state.name))
     study, (study_name, study_location) = tuner.tune_study(n_trials=trials, study_name=model_name + "_" + state.name)
-    plot_study(study, path=os.path.join(model_dir, study_name))
+    plot_study(study, path=os.path.join(model_dir, state.name))
     print("state: {}, study: {}".format(state.name, study_name))
 
 
