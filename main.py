@@ -27,7 +27,7 @@ if __name__ == "__main__":
     trials = 2
     N_JOBS = args.n_jobs
     if args.command == "train":
-        trainer(bias=args.bias, capture_movement=args.capture_movement, model_params=model_params, time_steps=time_steps, model_dir=model_dir, model_name=model_name, n_jobs=args.n_jobs)
+        trainer(bias=args.bias, capture_movement=args.capture_movement, model_params=model_params, time_steps=time_steps, model_dir=model_dir, model_name=model_name, n_jobs=args.n_jobs, states=args.state)
     elif args.command == "tune":
         tuner(bias=args.bias, capture_movement=args.capture_movement, time_steps=time_steps,model_dir=model_dir, model_name=model_name, trials=trials, n_jobs=args.n_jobs)
     elif args.command == "record":

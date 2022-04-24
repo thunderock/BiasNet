@@ -81,12 +81,15 @@ def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, 
     print("state: {}, reward: {}".format(state.name, reward))
 
 
-def trainer(bias, capture_movement, model_params, time_steps, model_dir, model_name, n_jobs):
+def trainer(bias, capture_movement, model_params, time_steps, model_dir, model_name, n_jobs, states=None):
     print("bias: {}, capture_movement: {}, model_params: {}, time_steps: {}, model_dir: {}, model_name: {}".format(bias, capture_movement, model_params, time_steps, model_dir, model_name))
     assert bias in [True, False] and capture_movement in [True, False] and isinstance(model_params, dict) and model_name in ["A2C", "PPO"] and time_steps > 0
 
+    if isinstance(states, str):
+        states = [states]
+
     pool = Pool(processes=n_jobs)
-    pool.starmap(_train_wrapper, [(bias, capture_movement, model_params, time_steps, model_dir, model_name, state) for state in GameState])
+    pool.starmap(_train_wrapper, [(bias, capture_movement, model_params, time_steps, model_dir, model_name, state) for state in states])
 
 
 

@@ -16,18 +16,32 @@ Reinforcement Learning for Street Fighter using GNNs
 python main.py --command record --bias False --capture_movement True --record_path /tmp/record/ --render True --model_path experiments/final_models/unbiased_capture_movement/A2C_GUILE.zip --state guile.state
 ```
 
-* Command to train model, only for all states:
+* Command to tune model using optuna, only for all states:
 ```
-python driver.py --command tuner --n_jobs 4 --bias False --capture_movement True
+python main.py --command tuner --n_jobs 4 --bias False --capture_movement True
 
 ```
 
-*Command to train model, for all states:
+Currently range of hyperparameters to train are hardcoded in tuner class. Those are 
 ```
-python driver.py --command train --bias True --capture_movement False --n_jobs 1
+{
+            'gamma': trial.suggest_loguniform('gamma', 0.8, 0.85),
+            'learning_rate': trial.suggest_loguniform('learning_rate', 1e-4, 4e-4),
+            'gae_lambda': trial.suggest_uniform('gae_lambda', 0.8, 0.9)
+}
+```
+* Command to train model, for all states:
+```
+python main.py --command train --bias True --capture_movement False --n_jobs 1
+
+```
+for one state
+```
+python main.py --command train --bias True --capture_movement False --n_jobs 1 --state guile.state
 
 ```
 
+Currently all model params are hardcoded in main.py itself for training and ease of training.
 
 * Command to fine tune a trained model for a state:
 ```
@@ -46,3 +60,7 @@ python -m retro.import .
 ```
 python -m retro.scripts.playback_movie *bk2
 ```
+
+## Results and experiments are in experiments directory.
+
+## Videos for "CHUNLI vs. AGENT" are [here](https://www.youtube.com/playlist?list=PLa0rHPMFIXsYRRGGrKXc1NO-F6KgBLHhx).
