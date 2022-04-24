@@ -58,6 +58,8 @@ class StreetFighterEnv(Env):
         self.previous_frame = obs
         reward = self.get_reward(info)
         self.score, self.enemy_health, self.health = info['score'], info['enemy_health'], info['health']
+        if (not self.training) and self.health == 0:
+            print("You lost")
         return obs, reward, done, info
 
     def render(self, *args, **kwargs):
