@@ -11,6 +11,7 @@ import cv2
 import shutil
 from utils import GameState
 
+
 class StreetFighterEnv(Env):
     def __init__(self, state, record_file=None, capture_movement=False, image_size=84, training=True):
         assert state in GameState._value2member_map_, "Invalid state"
@@ -34,8 +35,6 @@ class StreetFighterEnv(Env):
     def get_reward(self, info, win_reward=10000, getting_hit_penalty=1., hitting_enemy_reward=1.):
         # reward for hitting enemy
         score = info['score'] - self.score
-        if not self.training:
-            return score
         # penalty for losing health
         health = info['health'] - self.health  # between [-176, 0]
         # reward for winning
@@ -58,8 +57,6 @@ class StreetFighterEnv(Env):
         self.previous_frame = obs
         reward = self.get_reward(info)
         self.score, self.enemy_health, self.health = info['score'], info['enemy_health'], info['health']
-        if (not self.training) and self.health == 0:
-            print("You lost")
         return obs, reward, done, info
 
     def render(self, *args, **kwargs):
