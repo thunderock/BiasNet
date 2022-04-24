@@ -51,12 +51,12 @@ def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, tr
     policy_network = A2CCNNPolicy
     policy_kwargs = dict(features_extractor_class=feature_extractor_class,
                          features_extractor_kwargs=dict(features_dim=512, ), actor_critic_class=ActorCriticLayer)
-    tuner = Tuner(model=model, capture_movement=capture_movement, state=state.value, policy_network=policy_network,
+    tuner = Tuner(model=model, capture_movement=capture_movement, state=state, policy_network=policy_network,
                   policy_args=policy_kwargs,
-                  timesteps=time_steps, save_dir=os.path.join(model_dir, state.name))
-    study, (study_name, study_location) = tuner.tune_study(n_trials=trials, study_name=model_name + "_" + state.name)
-    plot_study(study, path=os.path.join(model_dir, state.name))
-    print("state: {}, study: {}".format(state.name, study_name))
+                  timesteps=time_steps, save_dir=os.path.join(model_dir, state))
+    study, (study_name, study_location) = tuner.tune_study(n_trials=trials, study_name=model_name + "_" + state)
+    plot_study(study, path=os.path.join(model_dir, state))
+    print("state: {}, study: {}".format(state, study_name))
 
 
 def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, model_name, state):
