@@ -16,10 +16,18 @@ Reinforcement Learning for Street Fighter using GNNs
 python main.py --command record --bias False --capture_movement True --record_path /tmp/record/ --render True --model_path experiments/final_models/unbiased_capture_movement/A2C_GUILE.zip --state guile.state
 ```
 
-* Command to tune model using optuna, only for all states:
+* Command to tune model using optuna, for all states:
+
+It uses Bayesian Hyper parameter tuning from [BoTorch](https://botorch.org/tutorials/) sampler.
+
 ```
 python main.py --command tuner --n_jobs 4 --bias False --capture_movement True
 
+```
+
+for one state:
+```
+python main.py --command tune --bias True --capture_movement True --n_jobs 1 --state chunli.state  --model_path experiments/final_models/bias_capture_movement/A2C_CHUNLI.zip --trials 4
 ```
 
 Currently range of hyperparameters to train are hardcoded in tuner class. Those are 
