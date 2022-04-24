@@ -84,4 +84,3 @@ def plot_study(study, path=None):
                 plt.savefig(p)
         except Exception as e:
             print("Error in plot: ", e)
-            

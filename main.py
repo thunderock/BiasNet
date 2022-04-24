@@ -29,7 +29,7 @@ if __name__ == "__main__":
     if args.command == "train":
         trainer(bias=args.bias, capture_movement=args.capture_movement, model_params=model_params, time_steps=time_steps, model_dir=model_dir, model_name=model_name, n_jobs=args.n_jobs, states=args.state)
     elif args.command == "tune":
-        tuner(bias=args.bias, capture_movement=args.capture_movement, time_steps=time_steps,model_dir=model_dir, model_name=model_name, trials=trials, n_jobs=args.n_jobs)
+        tuner(bias=args.bias, capture_movement=args.capture_movement, time_steps=time_steps,model_dir=model_dir, model_name=model_name, trials=trials, n_jobs=args.n_jobs, states=args.state)
     elif args.command == "record":
         recorder(model_path=args.model_path, capture_movement=args.capture_movement, state=args.state, model_name=model_name, render=args.render, record_dir=args.record_path)
     elif args.command == "fine_tune":

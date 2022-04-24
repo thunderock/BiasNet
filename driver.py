@@ -59,14 +59,6 @@ def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, tr
     print("state: {}, study: {}".format(state.name, study_name))
 
 
-def tuner(bias, capture_movement, time_steps, model_dir, model_name, trials, n_jobs):
-    print("bias: {}, capture_movement: {}, time_steps: {}, model_dir: {}, model_name: {}, trials: {}".format(bias, capture_movement, time_steps, model_dir, model_name, trials))
-    assert bias in [True, False] and capture_movement in [True, False] and model_name in ["A2C", "PPO"] and time_steps > 0
-    pool = Pool(n_jobs)
-    pool.starmap(_tuner_wrapper,
-                 [(bias, capture_movement, time_steps, model_dir, model_name, trials, state) for state in GameState])
-
-
 def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, model_name, state):
     model = A2C if model_name == "A2C" else PPO
     feature_extractor_class = CNNExtractorWithAttention if bias else CNNExtractor
@@ -79,6 +71,16 @@ def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, 
     reward, model = tuner._evaluate_model(env, model_params, 0, return_model=True, save_model=False)
     model.save(os.path.join(model_dir, model_name + "_" + state.name))
     print("state: {}, reward: {}".format(state.name, reward))
+
+
+def tuner(bias, capture_movement, time_steps, model_dir, model_name, trials, n_jobs, states):
+    print("bias: {}, capture_movement: {}, time_steps: {}, model_dir: {}, model_name: {}, trials: {}".format(bias, capture_movement, time_steps, model_dir, model_name, trials))
+    assert bias in [True, False] and capture_movement in [True, False] and model_name in ["A2C", "PPO"] and time_steps > 0
+    if isinstance(states, str):
+        states = [states]
+    pool = Pool(n_jobs)
+    pool.starmap(_tuner_wrapper,
+                 [(bias, capture_movement, time_steps, model_dir, model_name, trials, state) for state in states])
 
 
 def trainer(bias, capture_movement, model_params, time_steps, model_dir, model_name, n_jobs, states=None):
