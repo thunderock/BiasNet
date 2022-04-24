@@ -73,14 +73,15 @@ def plot_study(study, path=None):
             optuna.visualization.matplotlib.plot_edf,
             optuna.visualization.matplotlib.plot_optimization_history]
     for plot in plots:
-        _ = plot(study)
-        if path is None:
-            plt.show()
-        else:
-            p = os.path.join(path, plot.__name__ + '.png')
-            print("writing fig at ", str(p))
-            try:
+        try:
+            _ = plot(study)
+            if path is None:
+                plt.show()
+            else:
+                p = os.path.join(path, plot.__name__ + '.png')
+                print("writing fig at ", str(p))
+
                 plt.savefig(p)
-            except ValueError:
-                pass
-    return
+        except Exception as e:
+            print("Error in plot: ", e)
+            
