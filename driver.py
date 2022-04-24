@@ -5,6 +5,8 @@
 from constants import *
 from utils import plot_study, GameState, record_model_playing
 from environment import StreetFighterEnv
+from trainer import _get_model
+from callbacks import get_eval_callback
 from stable_baselines3 import PPO, A2C
 from actor_critic import A2CCNNPolicy
 from feature_extractors import CNNExtractorWithAttention, CNNExtractor
@@ -18,6 +20,21 @@ except RuntimeError as e:
     print(e)
 
 
+def fine_tune(model_name, model_path, tensorboard_path, model_params, state, time_steps, bias, capture_movement, model_save_path):
+    print("model_name: {}, model_path: {}, tensorboard_path: {}, model_params: {}, state: {}, time_steps: {}, bias: {}, capture_movement: {}, model_save_path: {}".format(model_name, model_path, tensorboard_path, model_params, state, time_steps, bias, capture_movement, model_save_path))
+    assert model_name in ["A2C", "PPO"]
+    model = A2C if model_name == "A2C" else PPO
+    feature_extractor_class = CNNExtractorWithAttention if bias else CNNExtractor
+    policy_network = A2CCNNPolicy
+    policy_kwargs = dict(features_extractor_class=feature_extractor_class,
+                         features_extractor_kwargs=dict(features_dim=512, ), actor_critic_class=ActorCriticLayer)
+    env = StreetFighterEnv(capture_movement=capture_movement, state=state, training=True)
+    callback = get_eval_callback(env, model_save_path)
+    model = _get_model(model_type=model, env=env, policy_network=policy_network, feature_extractor_kwargs=policy_kwargs, log_dir=tensorboard_path, verbose=1, model_params=model_params)
+    model.load(model_path)
+    # print(env)
+    model.learn(total_timesteps=time_steps, callback=callback)
+
 
 def recorder(model_path, capture_movement, state, model_name, render, record_dir):
     print("model_path: {}, capture_movement: {}, state: {}, model_name: {}, render: {}, record_dir: {}".format(model_path, capture_movement, state, model_name, render, record_dir))
@@ -28,7 +45,6 @@ def recorder(model_path, capture_movement, state, model_name, render, record_dir
 
 
 def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, trials, state):
-
 
     model = A2C if model_name == "A2C" else PPO
     feature_extractor_class = CNNExtractorWithAttention if bias else CNNExtractor
