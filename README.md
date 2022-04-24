@@ -18,3 +18,9 @@ python -m retro.import .
 ```
 python -m retro.scripts.playback_movie *bk2
 ```
+
+
+* Command to generate bk2 given a trained model:
+```
+python main.py --command record --bias False --capture_movement True --record_path /tmp/record/ --render True --model_path experiments/final_models/unbiased_capture_movement/A2C_GUILE.zip --state guile.state
+```

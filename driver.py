@@ -11,19 +11,17 @@ from feature_extractors import CNNExtractorWithAttention, CNNExtractor
 from tuner import Tuner
 import os
 from layers import ActorCriticLayer
-import argparse
-import ast
 from torch.multiprocessing import Pool, set_start_method
 try:
      set_start_method('spawn')
 except RuntimeError as e:
     print(e)
-N_JOBS = PARALLEL_ENV_COUNT
+
 
 
 def recorder(model_path, capture_movement, state, model_name, render, record_dir):
     print("model_path: {}, capture_movement: {}, state: {}, model_name: {}, render: {}, record_dir: {}".format(model_path, capture_movement, state, model_name, render, record_dir))
-    env = StreetFighterEnv(capture_movement=capture_movement, state=state.value, training=False, record_file=record_dir)
+    env = StreetFighterEnv(capture_movement=capture_movement, state=state, training=False, record_file=record_dir)
     model = A2C if model_name == "A2C" else PPO
     model = model.load(model_path)
     record_model_playing(env=env, model=model, render=render)
@@ -45,10 +43,10 @@ def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, tr
     print("state: {}, study: {}".format(state.name, study_name))
 
 
-def tuner(bias, capture_movement, time_steps, model_dir, model_name, trials):
+def tuner(bias, capture_movement, time_steps, model_dir, model_name, trials, n_jobs):
     print("bias: {}, capture_movement: {}, time_steps: {}, model_dir: {}, model_name: {}, trials: {}".format(bias, capture_movement, time_steps, model_dir, model_name, trials))
-    assert bias in [True, False] and capture_movement in [True, False] and isinstance(model_params, dict) and model_name in ["A2C", "PPO"] and time_steps > 0
-    pool = Pool(N_JOBS)
+    assert bias in [True, False] and capture_movement in [True, False] and model_name in ["A2C", "PPO"] and time_steps > 0
+    pool = Pool(n_jobs)
     pool.starmap(_tuner_wrapper,
                  [(bias, capture_movement, time_steps, model_dir, model_name, trials, state) for state in GameState])
 
@@ -67,38 +65,12 @@ def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, 
     print("state: {}, reward: {}".format(state.name, reward))
 
 
-def trainer(bias, capture_movement, model_params, time_steps, model_dir, model_name):
+def trainer(bias, capture_movement, model_params, time_steps, model_dir, model_name, n_jobs):
     print("bias: {}, capture_movement: {}, model_params: {}, time_steps: {}, model_dir: {}, model_name: {}".format(bias, capture_movement, model_params, time_steps, model_dir, model_name))
     assert bias in [True, False] and capture_movement in [True, False] and isinstance(model_params, dict) and model_name in ["A2C", "PPO"] and time_steps > 0
 
-    pool = Pool(processes=N_JOBS)
+    pool = Pool(processes=n_jobs)
     pool.starmap(_train_wrapper, [(bias, capture_movement, model_params, time_steps, model_dir, model_name, state) for state in GameState])
 
 
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--command", type=str, choices=["train", "tune", "record"], required=True)
-    parser.add_argument("--bias", type=ast.literal_eval, default=True)
-    parser.add_argument("--capture_movement", type=ast.literal_eval, default=True)
-    parser.add_argument("--model_path", type=str, default=None)
-    parser.add_argument("--render", type=ast.literal_eval, default=False)
-    parser.add_argument("--state", type=str, default=STATE_GUILE, choices=list(GameState._value2member_map_.keys()))
-    parser.add_argument("--record_path", type=str, default=None)
-    parser.add_argument("--n_jobs", type=int, default=N_JOBS)
-    args = parser.parse_args()
-    model_params = {'gamma': 0.8074138106735396, 'learning_rate': 0.0001, 'gae_lambda': 0.8787060424267222}
-    model_name = "A2C"
-    model_dir = "models/{}_{}".format("biased" if args.bias else "unbiased", "capture_movement" if args.capture_movement else "no_capture_movement")
-    time_steps = 5000000
-    trials = 2
-    N_JOBS = args.n_jobs
-    if args.command == "train":
-        trainer(bias=args.bias, capture_movement=args.capture_movement, model_params=model_params, time_steps=time_steps, model_dir=model_dir, model_name=model_name)
-    elif args.command == "tune":
-        tuner(bias=args.bias, capture_movement=args.capture_movement, time_steps=time_steps,model_dir=model_dir, model_name=model_name, trials=trials)
-    elif args.command == "record":
-        recorder(model_path=args.model_path, capture_movement=args.capture_movement, state=args.state, model_name=model_name, render=args.render, record_dir=args.record_path)
-    else:
-        raise ValueError("Invalid command")
 
