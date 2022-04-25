@@ -13,7 +13,7 @@ def _get_model(model_type, env, policy_network, feature_extractor_kwargs, log_di
 
 
 def get_trained_model(env, policy_network, feature_extractor_kwargs, model, timesteps,
-                      model_params, monitor_log_file=None, log_dir=None, seed=SEED, verbose=VERBOSE):
+                      model_params, monitor_log_file=None, log_dir=None, seed=SEED, verbose=VERBOSE, callback=None):
     # print(model_params)
     env = Monitor(env, monitor_log_file, allow_early_resets=True)
     env = DummyVecEnv([lambda: env])
@@ -21,5 +21,6 @@ def get_trained_model(env, policy_network, feature_extractor_kwargs, model, time
     # env = VecFrameStack(env, n_stack=frame_size, channels_order='last')
     model = _get_model(model, env, policy_network, feature_extractor_kwargs,
                        model_params=model_params, log_dir=log_dir, seed=seed, verbose=verbose)
-    model.learn(timesteps)
+
+    model.learn(timesteps, callback=callback)
     return model

@@ -48,10 +48,11 @@ class Tuner(object):
         env = StreetFighterEnv(state=self.state, capture_movement=self.capture_movement, training=True)
         return self._evaluate_model(env, model_params, trial_params.number)
 
-    def _evaluate_model(self, env, model_params, trial_number, return_model=False, save_model=True):
+    def _evaluate_model(self, env, model_params, trial_number, return_model=False, save_model=True, callbacks=None):
         model = get_trained_model(
             env=env, policy_network=self.policy_network, feature_extractor_kwargs=self.policy_args,
-            model=self.model, timesteps=self.timesteps, model_params=model_params, log_dir=self.save_dir + '/trial_{}'.format(trial_number))
+            model=self.model, timesteps=self.timesteps, model_params=model_params,
+            log_dir=self.save_dir + '/trial_{}'.format(trial_number), callback=callbacks)
         reward = evaluate_model_policy(env, model)
         env.close()
         if save_model:

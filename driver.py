@@ -68,7 +68,8 @@ def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, 
     env = StreetFighterEnv(capture_movement=capture_movement, state=state.value, training=True)
     tuner = Tuner(model=model, capture_movement=capture_movement, state=state, policy_network=policy_network,
                   policy_args=policy_kwargs, timesteps=time_steps, save_dir=os.path.join(model_dir, state.name))
-    reward, model = tuner._evaluate_model(env, model_params, 0, return_model=True, save_model=False)
+    callback = get_eval_callback(env, 'models/{}/'.format(state.name))
+    reward, model = tuner._evaluate_model(env, model_params, 0, return_model=True, save_model=False, callbacks=callback)
     model.save(os.path.join(model_dir, model_name + "_" + state.name))
     print("state: {}, reward: {}".format(state.name, reward))
 
