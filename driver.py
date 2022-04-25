@@ -65,13 +65,13 @@ def _train_wrapper(bias, capture_movement, model_params, time_steps, model_dir, 
     policy_network = A2CCNNPolicy
     policy_kwargs = dict(features_extractor_class=feature_extractor_class,
                          features_extractor_kwargs=dict(features_dim=512, ), actor_critic_class=ActorCriticLayer)
-    env = StreetFighterEnv(capture_movement=capture_movement, state=state.value, training=True)
+    env = StreetFighterEnv(capture_movement=capture_movement, state=state, training=True)
     tuner = Tuner(model=model, capture_movement=capture_movement, state=state, policy_network=policy_network,
-                  policy_args=policy_kwargs, timesteps=time_steps, save_dir=os.path.join(model_dir, state.name))
-    callback = get_eval_callback(env, 'models/{}/'.format(state.name))
+                  policy_args=policy_kwargs, timesteps=time_steps, save_dir=os.path.join(model_dir, state))
+    callback = get_eval_callback(env, 'models/{}/'.format(state), 15000)
     reward, model = tuner._evaluate_model(env, model_params, 0, return_model=True, save_model=False, callbacks=callback)
-    model.save(os.path.join(model_dir, model_name + "_" + state.name))
-    print("state: {}, reward: {}".format(state.name, reward))
+    model.save(os.path.join(model_dir, model_name + "_" + state))
+    print("state: {}, reward: {}".format(state, reward))
 
 
 def tuner(bias, capture_movement, time_steps, model_dir, model_name, trials, n_jobs, states):

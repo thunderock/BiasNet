@@ -21,7 +21,7 @@ python main.py --command record --bias False --capture_movement True --record_pa
 It uses Bayesian Hyper parameter tuning from [BoTorch](https://botorch.org/tutorials/) sampler.
 
 ```
-python main.py --command tuner --n_jobs 4 --bias False --capture_movement True
+python main.py --command tune --n_jobs 4 --bias False --capture_movement True
 
 ```
 
