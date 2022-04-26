@@ -1,5 +1,5 @@
 # BiasNet
-Reinforcement Learning for Street Fighter using GNNs
+Deep Reinforcement Learning for Street Fighter II
 
 * All experiment notebooks are in experiments directory. To run them ou might have to move them to root directory first and then run them. 
 * Also some of them were not run after the recent changes. (probably should not include this in final version).
