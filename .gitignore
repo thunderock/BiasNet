@@ -134,7 +134,6 @@ dmypy.json
 *.csv
 *idea
 *out
-models/*
 wandb/*
 *.zip
 *.db
