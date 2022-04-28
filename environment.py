@@ -39,12 +39,10 @@ class StreetFighterEnv(Env):
         health = info['health'] - self.health  # between [-176, 0]
         # reward for winning
         win, survival = 0, 0
-        if info['enemy_health'] == 0:
-            win = 1
-        elif info['health'] == 0:
+        if info['enemy_matches_won'] > self.enemy_matches_won:
             win = -1
-        # if info['health'] != 0:
-        #     survival = 10
+        else:
+            win = 1
         return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty
 
     def step(self, action):
@@ -56,7 +54,8 @@ class StreetFighterEnv(Env):
             obs = obs - self.previous_frame
         self.previous_frame = obs
         reward = self.get_reward(info)
-        self.score, self.enemy_health, self.health = info['score'], info['enemy_health'], info['health']
+        self.score, self.health, self.enemy_matches_won, self.matches_won = \
+            info['score'], info['health'], info['enemy_matches_won'], info['matches_won']
         return obs, reward, done, info
 
     def render(self, *args, **kwargs):
@@ -69,6 +68,8 @@ class StreetFighterEnv(Env):
         self.score = 0
         self.health = 176
         self.enemy_health = 176
+        self.matches_won = 0
+        self.enemy_matches_won = 0
         return obs
 
     def close(self):
