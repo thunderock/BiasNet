@@ -71,4 +71,4 @@ python -m retro.scripts.playback_movie *bk2
 
 ## Results and experiments are in experiments directory.
 
-## Videos for "CHUNLI vs. AGENT" are [here](https://www.youtube.com/playlist?list=PLa0rHPMFIXsYRRGGrKXc1NO-F6KgBLHhx).
+## Videos for "CHUNLI vs. AGENT" are [here](experiments/final_recordings).
