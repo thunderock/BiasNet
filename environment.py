@@ -41,7 +41,7 @@ class StreetFighterEnv(Env):
         win, survival = 0, 0
         if info['enemy_matches_won'] > self.enemy_matches_won:
             win = -1
-        else:
+        elif info['matches_won'] > self.matches_won:
             win = 1
         return hitting_enemy_reward * score + win * win_reward + health * getting_hit_penalty
 
@@ -79,3 +79,4 @@ class StreetFighterEnv(Env):
         gray = cv2.cvtColor(obs, cv2.COLOR_BGR2GRAY)
         resized = cv2.resize(gray, (self.image_size, self.image_size), interpolation=cv2.INTER_CUBIC)
         return np.reshape(resized, (self.image_size, self.image_size, 1))
+
