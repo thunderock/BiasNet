@@ -9,7 +9,6 @@
 \RequirePackage{ifthen}
 \RequirePackage{setspace}
 \RequirePackage{fancyhdr}
-%\RequirePackage[latin1]{inputenc} %% pacote quebrado
 \RequirePackage[T1]{fontenc}
 \RequirePackage{graphicx}
 \RequirePackage{float}
@@ -76,7 +75,7 @@
 
 \newenvironment{palavraschave }{\noindent\hspace*{4mm}\normalsize{\bf{\em Palavras-chave --}}\normalsize\bf}{\par\rm\small\medskip\medskip}
 
-%Seções
+
 \setcounter{secnumdepth}{3}
 \def\thesection {\Roman{section}.\hskip-7.2pt}
 \def\thesubsection {\Alph{subsection}.\hskip-7.2pt}
@@ -96,22 +95,19 @@
 	\let\maketitle\relax \let\@maketitle\relax
 } %
 \def\@maketitle{ \centering
-	{\Large \bf \ifnum \configlanguage = 1 \@title 	\else  \@portuguesetitle \fi  \par}
+	{\Large \bf \ifnum \configlanguage = 1 \@title 	\else  \@portuguesetitle \fi  \par} 
 	\vskip 16.75pt
 	{\large\@author}
 	\vskip 9mm}
 
 \def\englishtitle{ {\centering\large\bf\@title\par} \medskip\medskip }
 
-%footnote rule
 \renewcommand\footnoterule{\noindent\rule{5.075cm}{0.85pt}\vskip 6pt}
 
-%nomenclature
 \newcommand{\symbolnomenclature}[2]{\indent\parbox{16mm}{#1}{#2\par}}
 
 \newcommand{\symboldescription}[2]{\indent\parbox{8.5mm}{#1}{- #2\par}}
 
-%Table
 \renewcommand{\thetable}{\Roman{table}}
 \captionsetup[table]{labelsep = newline, labelfont=bf,  justification=centering}
 \captionsetup[figure]{labelsep = period, font=small, justification=justified, singlelinecheck=off}
@@ -122,28 +118,23 @@
 \addto\captionsenglish{\renewcommand{\refname}{REFERENCES}}
 \addto\captionsbrazil{\renewcommand{\refname}{REFERÊNCIAS}}
 
-%Elimina a numerção de página
 \pagestyle{empty}
 
-%Espaçamento entre paragrafos
 \setlength{\parskip}{0pt}
 
-%indent config
 \setlength\parindent{4.0mm}
 
-%Configura espaçamento entre colunas
 \setlength\columnsep{6.0mm}
 
-%Configura espaçamento entre linhas
 \renewcommand{\baselinestretch}{0.985}
 
-%Configuração de Listas
-\def\@listI{\leftmargin 7.5mm \leftmargini\parsep  \topsep 0pt  \itemsep -1.25mm \partopsep 10pt \listparindent 0pt
+
+\def\@listI{\leftmargin 7.5mm \leftmargini\parsep  \topsep 0pt  \itemsep -1.25mm \partopsep 10pt \listparindent 0pt 
 	              \labelsep 4.5mm }
 
 
-\setlength{\textfloatsep}{7pt}
-\setlength{\intextsep}{7pt}
+\setlength{\textfloatsep}{7pt} 
+\setlength{\intextsep}{7pt} 
 \setlength{\abovecaptionskip}{3pt}
 \setlength{\belowcaptionskip}{3pt}
 
@@ -187,7 +178,8 @@
 
 \AtBeginDocument{
 
-
+	
 }
+
 
 
