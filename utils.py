@@ -43,7 +43,7 @@ def record_model_playing(env, model, render=False):
     print("iterations: ", iteration)
     print("total reward: ", total_reward)
     env.close()
-    return True
+    return total_reward
 
 
 def load_study(study_name, path):

@@ -41,7 +41,7 @@ def recorder(model_path, capture_movement, state, model_name, render, record_dir
     env = StreetFighterEnv(capture_movement=capture_movement, state=state, training=False, record_file=record_dir)
     model = A2C if model_name == "A2C" else PPO
     model = model.load(model_path)
-    record_model_playing(env=env, model=model, render=render)
+    return record_model_playing(env=env, model=model, render=render)
 
 
 def _tuner_wrapper(bias, capture_movement, time_steps, model_dir, model_name, trials, state):

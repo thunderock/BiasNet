@@ -9,7 +9,7 @@ from stable_baselines3.common.utils import get_device, set_random_seed
 
 SEED = 2000728661
 DEVICE = get_device("auto")
-set_random_seed(SEED)
+# set_random_seed(SEED)
 BATCH_SIZE = 256
 VERBOSE = 0
 
