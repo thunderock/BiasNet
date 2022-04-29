@@ -114,6 +114,9 @@ These were also result of extensive experiments, but yes since these models were
 \section{EXPERIMENTS AND RESULTS}
 
 Each model is trained for 5M episodes with a batch size of $256$. Hyper parameters to train models were figured out over the course of project. To derive some intuition on what could be the best, we looked at these ~\ref{fig:fig6} and ~\ref{fig:fig7}. These plots were result of training on an entirely different reward structure, but we think that on a very high level it is wise to use these as baselines. For non relational baselines they was kept the same. We see that before starting to overfit, the relational agent which is trained on movements achieves a higher mean reward much early than all other methods. A callback is used to monitor the training model every $30K$ episodes and if it is better than the previous model it is stored to be used for prediction.
+
+All experiments can be found in \href{https://github.com/thunderock/BiasNet/tree/master/experiments}{experiments directory} in the root folder of the project. These include tuning results (which were done using optuna), tensorboard logs, final recordings and trained models. All of them are in obvious directory structure which are aptly named.
+
 \begin{figure}
 	\includegraphics[width=3in, height=3in]{training.png}
 	\centering
@@ -152,7 +155,7 @@ There were a few challenges encountered. We are listing those down below. Some o
 
 \section{CONCLUSION AND FUTURE WORK}
 
-It was very easy to point out that using relational agent in this case doesn't not result in very high improvements in evaluation results which we set out to prove in the beginning. But it does provide little better results. Major find was the use of scene differences in the training itself. This gave a lot of improvement as can be seen ~\ref{fig:fig5}. This plot is generated from the selected trained models in each category.
+It was very easy to point out that using relational agent in this case doesn't not result in very high improvements in evaluation results when compared to the computational overheads and complexity it brings to the system, at least in this case. This was the fact we set out to prove in the beginning. But it does provide little better results. Major find was the use of scene differences in the training itself. This gave a lot of improvement as can be seen ~\ref{fig:fig5}. This plot is generated from the selected trained models in each category.
 
 I think there were a lot of things I could've done better. First I realized that my network was very small as compared to  ~\cite{zambaldi2018deep}, and this was an online learning algorithm as compared to an offline version they used in their paper. It required 100 workers to be trained in parallel and they used two different networks. In my case use of a small network was a cautious decision to keep the network size contained to be able to train model on the infrastructure which was at my disposal. Also as you can notice in diagram ~\ref{fig:fig2}, the result of max pool is very small $4\times4$, and we're very sure that this was a bottleneck in the learning procedure. 
 
@@ -166,10 +169,5 @@ Since we already know that using movements is a good idea, probably I should hav
 
 \bibliography{ashutiwa.bib}
 
-%% (1) a description of what you set out to do, (2) what you actually did (please include
-% details for anything which is not straight from the textbook/lectures/paper), (3) the results and
-% conclusions from your investigation, (4) a discussion of any insights or difficulties you found in
-% this project, and (5) how you might continue the work or redo the work if you were to start from
-% scratch.
 \end{document}
 
